@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "description": "Routing regression cases for the workflow routing matrix. These evals check whether a prompt maps to the expected module, pipeline, stages, and parallel groups.",
+  "cases": [
+    {
+      "id": "content_xhs_package_zh",
+      "prompt": "生成一套小红书图文笔记，包含标题、正文、封面方向和发布清单",
+      "expected_module": "content",
+      "expected_pipeline": "xhs_note_package",
+      "required_stages": ["intake", "title_hook", "visual_direction", "draft", "asset_generation", "handoff"],
+      "required_parallel_groups": ["angle_and_visual_direction", "copy_and_assets"]
+    },
+    {
+      "id": "content_researched_article",
+      "prompt": "Research competitor examples and write an evidence-backed newsletter with sources.",
+      "expected_module": "content",
+      "expected_pipeline": "researched_article",
+      "required_stages": ["research", "topic", "draft", "handoff"],
+      "required_parallel_groups": ["evidence_collection"]
+    },
+    {
+      "id": "content_system_zh",
+      "prompt": "帮我设计一个内容系统，包括选题库、发布节奏和复盘指标",
+      "expected_module": "content",
+      "expected_pipeline": "content_system",
+      "required_stages": ["strategy", "systemization", "measurement"],
+      "required_parallel_groups": ["system_inputs"]
+    },
+    {
+      "id": "coding_skill_development_zh",
+      "prompt": "改进这个skill安装器并补测试",
+      "expected_module": "coding",
+      "expected_pipeline": "skill_development",
+      "required_stages": ["design", "implementation", "test_authoring", "handoff"],
+      "required_parallel_groups": ["skill_edit_and_tests"]
+    },
+    {
+      "id": "coding_frontend_ui",
+      "prompt": "Redesign this React settings page and verify the mobile layout in browser.",
+      "expected_module": "coding",
+      "expected_pipeline": "frontend_ui_change",
+      "required_stages": ["context_scan", "design", "test_authoring", "implementation", "browser_verification", "visual_qa"],
+      "required_parallel_groups": ["design_and_acceptance", "ui_verification"]
+    },
+    {
+      "id": "coding_bug_fix",
+      "prompt": "The login test is failing after the auth refactor. Find the root cause and fix it.",
+      "expected_module": "coding",
+      "expected_pipeline": "bug_fix",
+      "required_stages": ["debugging", "implementation", "test_authoring", "handoff"],
+      "required_parallel_groups": ["fix_and_regression"]
+    }
+  ]
+}

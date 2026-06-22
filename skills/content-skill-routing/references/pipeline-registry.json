@@ -1,0 +1,220 @@
+{
+  "version": 2,
+  "router": "content-skill-routing",
+  "layers": [
+    {"id": "intake", "label": "Intake", "purpose": "Clarify platform, audience, deliverable, source material, and acceptance gates."},
+    {"id": "evidence", "label": "Evidence", "purpose": "Gather sources, examples, screenshots, analytics, or user-provided material."},
+    {"id": "strategy", "label": "Strategy", "purpose": "Choose positioning, audience angle, content mix, and operating approach."},
+    {"id": "creation", "label": "Creation", "purpose": "Create topics, hooks, outlines, drafts, edits, scripts, and voice polish."},
+    {"id": "packaging", "label": "Packaging", "purpose": "Create covers, cards, thumbnails, screenshots, generated images, and visual systems."},
+    {"id": "handoff", "label": "Manual Handoff", "purpose": "Prepare publish-ready packages without platform login automation."},
+    {"id": "measurement", "label": "Measurement", "purpose": "Review performance, diagnose patterns, and choose next experiments."},
+    {"id": "systems", "label": "Systems", "purpose": "Build reusable content libraries, calendars, operating docs, and knowledge bases."}
+  ],
+  "stages": [
+    {"id": "intake", "layer": "intake", "purpose": "Clarify deliverable, audience, platform, and source materials."},
+    {"id": "research", "layer": "evidence", "purpose": "Gather or verify source evidence and public examples."},
+    {"id": "strategy", "layer": "strategy", "purpose": "Choose positioning, content angle, and operating approach."},
+    {"id": "topic", "layer": "creation", "purpose": "Generate or select topics and outlines."},
+    {"id": "title_hook", "layer": "creation", "purpose": "Create titles, hooks, openings, and first-screen copy."},
+    {"id": "draft", "layer": "creation", "purpose": "Write the main content artifact."},
+    {"id": "voice_polish", "layer": "creation", "purpose": "Edit for clarity, human voice, platform fit, and AI-pattern cleanup."},
+    {"id": "visual_direction", "layer": "packaging", "purpose": "Define visual concept, cover, card, thumbnail, or screenshot direction."},
+    {"id": "asset_generation", "layer": "packaging", "purpose": "Generate images, cards, thumbnails, screenshots, or slide assets."},
+    {"id": "render", "layer": "packaging", "purpose": "Render card, carousel, slide, screenshot, or image files for handoff."},
+    {"id": "handoff", "layer": "handoff", "purpose": "Prepare publish-ready manual package and checklist."},
+    {"id": "measurement", "layer": "measurement", "purpose": "Analyze performance and recommend next experiments."},
+    {"id": "systemization", "layer": "systems", "purpose": "Build reusable content workflows, libraries, and operating docs."}
+  ],
+  "skills": [
+    {
+      "name": "anysearch",
+      "priority": "normal",
+      "category": "research",
+      "layer": "evidence",
+      "parallel_safe": true,
+      "stages": ["research"],
+      "use_when": "Current public facts, competitor examples, market signals, or source links are needed.",
+      "install_hint": "Install a public-search or research skill; anysearch is the recommended default."
+    },
+    {
+      "name": "niche-research",
+      "priority": "normal",
+      "category": "research_strategy",
+      "layer": "strategy",
+      "parallel_safe": true,
+      "stages": ["research", "strategy", "topic"],
+      "use_when": "The user needs niche, competitor, audience, or demand research before content creation.",
+      "install_hint": "Useful for strategy-heavy creator or market research workflows."
+    },
+    {
+      "name": "post-writer",
+      "priority": "high",
+      "category": "writing",
+      "layer": "creation",
+      "parallel_safe": false,
+      "stages": ["draft"],
+      "use_when": "The user needs a LinkedIn-style, essay-style, or social post draft.",
+      "install_hint": "Recommended primary writing skill for social posts."
+    },
+    {
+      "name": "post-formatter",
+      "priority": "normal",
+      "category": "formatting",
+      "layer": "handoff",
+      "parallel_safe": false,
+      "stages": ["voice_polish", "handoff"],
+      "use_when": "A draft needs platform-ready formatting and final structure.",
+      "install_hint": "Recommended for final social copy packaging."
+    },
+    {
+      "name": "hook-generator",
+      "priority": "normal",
+      "category": "hooks_titles",
+      "layer": "creation",
+      "parallel_safe": true,
+      "stages": ["title_hook"],
+      "use_when": "The key task is hooks, openings, or first-line variants.",
+      "install_hint": "Recommended for high-variance opening exploration."
+    },
+    {
+      "name": "xhs-visual-director",
+      "priority": "normal",
+      "category": "visual_direction",
+      "layer": "packaging",
+      "parallel_safe": true,
+      "stages": ["visual_direction"],
+      "use_when": "A Xiaohongshu/Rednote visual concept, cover direction, or image plan is needed.",
+      "install_hint": "Recommended for Rednote visual planning."
+    },
+    {
+      "name": "guizang-social-card-skill",
+      "priority": "normal",
+      "category": "visual_render",
+      "layer": "packaging",
+      "parallel_safe": false,
+      "stages": ["asset_generation", "render"],
+      "use_when": "The output should be a designed social card, carousel, or shareable visual card.",
+      "install_hint": "Recommended for card/carousel rendering workflows."
+    },
+    {
+      "name": "imagegen",
+      "priority": "normal",
+      "category": "image_generation",
+      "layer": "packaging",
+      "parallel_safe": true,
+      "stages": ["asset_generation"],
+      "use_when": "The user needs raster image generation or editing.",
+      "install_hint": "Recommended for standalone generated images."
+    },
+    {
+      "name": "high-fidelity-page-screenshot",
+      "priority": "normal",
+      "category": "screenshot",
+      "layer": "packaging",
+      "parallel_safe": false,
+      "stages": ["asset_generation", "handoff"],
+      "use_when": "The user asks for full-page, prototype, demo, or shareable page screenshots.",
+      "install_hint": "Recommended for screenshot deliverables."
+    },
+    {
+      "name": "humanizer-zh",
+      "priority": "normal",
+      "category": "voice_polish",
+      "layer": "creation",
+      "parallel_safe": false,
+      "stages": ["voice_polish"],
+      "use_when": "Chinese copy needs to sound more human and less AI-generated.",
+      "install_hint": "Recommended for Chinese final polish."
+    },
+    {
+      "name": "analytics-dashboard",
+      "priority": "normal",
+      "category": "measurement",
+      "layer": "measurement",
+      "parallel_safe": true,
+      "stages": ["measurement"],
+      "use_when": "The user provides analytics exports and needs diagnosis, dashboard, or next actions.",
+      "install_hint": "Recommended for metrics-backed content review."
+    },
+    {
+      "name": "notion-knowledge-capture",
+      "priority": "normal",
+      "category": "systemization",
+      "layer": "systems",
+      "parallel_safe": false,
+      "stages": ["systemization"],
+      "use_when": "The output should become a reusable knowledge or content operating system.",
+      "install_hint": "Recommended when Notion is part of the workflow."
+    }
+  ],
+  "pipelines": [
+    {
+      "id": "social_post_from_notes",
+      "label": "Turn notes into a platform-ready social post",
+      "domain": "creation",
+      "mode": "default",
+      "triggers": ["post", "linkedin", "tweet", "thread", "social", "from notes", "rewrite", "帖子", "社媒", "改写", "笔记改写"],
+      "stages": [
+        {"step": 1, "stage": "intake", "execution": "serial", "candidate_skills": [], "agent_role": "Router clarifies platform, audience, source notes, and final format."},
+        {"step": 2, "stage": "draft", "execution": "serial", "depends_on": ["intake"], "candidate_skills": ["post-writer"], "agent_role": "Writing agent turns source notes into the main post."},
+        {"step": 3, "stage": "voice_polish", "execution": "serial", "depends_on": ["draft"], "candidate_skills": ["post-formatter", "humanizer-zh"], "agent_role": "Editing agent formats and polishes the draft for the target platform."},
+        {"step": 4, "stage": "handoff", "execution": "serial", "depends_on": ["voice_polish"], "candidate_skills": ["post-formatter"], "agent_role": "Handoff agent prepares final copy, metadata, and manual publish checklist."}
+      ]
+    },
+    {
+      "id": "xhs_note_package",
+      "label": "Prepare a Xiaohongshu/Rednote note package",
+      "domain": "creation_packaging",
+      "mode": "default",
+      "triggers": ["xhs", "xiaohongshu", "rednote", "little red book", "cover", "note", "小红书", "红书", "图文", "笔记", "封面", "发布清单"],
+      "stages": [
+        {"step": 1, "stage": "intake", "execution": "serial", "candidate_skills": [], "agent_role": "Router confirms topic, audience, note type, source material, and asset requirements."},
+        {"step": 2, "stage": "title_hook", "execution": "parallel", "parallel_group": "angle_and_visual_direction", "depends_on": ["intake"], "candidate_skills": ["hook-generator"], "agent_role": "Hook agent explores title and first-screen variants."},
+        {"step": 2, "stage": "visual_direction", "execution": "parallel", "parallel_group": "angle_and_visual_direction", "depends_on": ["intake"], "candidate_skills": ["xhs-visual-director"], "agent_role": "Visual agent defines cover/card direction in parallel with hook exploration."},
+        {"step": 3, "stage": "draft", "execution": "parallel", "parallel_group": "copy_and_assets", "depends_on": ["title_hook"], "candidate_skills": ["post-writer"], "agent_role": "Writing agent drafts the note body from the selected angle."},
+        {"step": 3, "stage": "asset_generation", "execution": "parallel", "parallel_group": "copy_and_assets", "depends_on": ["visual_direction"], "candidate_skills": ["guizang-social-card-skill", "imagegen"], "agent_role": "Asset agent generates or renders the required cover/card assets."},
+        {"step": 4, "stage": "voice_polish", "execution": "serial", "depends_on": ["draft"], "candidate_skills": ["post-formatter", "humanizer-zh"], "agent_role": "Editing agent tightens the body copy for Xiaohongshu reading behavior."},
+        {"step": 5, "stage": "handoff", "execution": "serial", "depends_on": ["voice_polish", "asset_generation"], "candidate_skills": ["post-formatter"], "agent_role": "Handoff agent assembles title, body, tags, asset list, and manual publish checklist."}
+      ]
+    },
+    {
+      "id": "researched_article",
+      "label": "Research and write an evidence-backed article or newsletter",
+      "domain": "research_creation",
+      "mode": "deep",
+      "triggers": ["research", "newsletter", "article", "sources", "evidence", "competitor", "调研", "研究", "文章", "通讯", "证据", "竞品"],
+      "stages": [
+        {"step": 1, "stage": "research", "execution": "parallel", "parallel_group": "evidence_collection", "candidate_skills": ["anysearch", "niche-research"], "agent_role": "Research agents gather sources, competitor examples, and demand signals without inventing facts."},
+        {"step": 2, "stage": "topic", "execution": "serial", "depends_on": ["research"], "candidate_skills": ["niche-research"], "agent_role": "Strategy agent selects the topic and article angle from evidence."},
+        {"step": 3, "stage": "draft", "execution": "serial", "depends_on": ["topic"], "candidate_skills": ["post-writer"], "agent_role": "Writing agent drafts the article or newsletter."},
+        {"step": 4, "stage": "voice_polish", "execution": "serial", "depends_on": ["draft"], "candidate_skills": ["post-formatter"], "agent_role": "Editing agent formats and polishes the piece."},
+        {"step": 5, "stage": "handoff", "execution": "serial", "depends_on": ["voice_polish"], "candidate_skills": ["post-formatter"], "agent_role": "Handoff agent lists sources, final copy, metadata, and publish checklist."}
+      ]
+    },
+    {
+      "id": "visual_asset_package",
+      "label": "Create or prepare visual assets for content",
+      "domain": "packaging",
+      "mode": "default",
+      "triggers": ["card", "carousel", "thumbnail", "image", "visual", "screenshot", "cover", "卡片", "轮播", "缩略图", "图片", "视觉", "截图", "封面"],
+      "stages": [
+        {"step": 1, "stage": "visual_direction", "execution": "serial", "candidate_skills": ["xhs-visual-director"], "agent_role": "Visual direction agent defines format, hierarchy, style, and acceptance checks."},
+        {"step": 2, "stage": "asset_generation", "execution": "parallel", "parallel_group": "asset_variants", "depends_on": ["visual_direction"], "candidate_skills": ["guizang-social-card-skill", "imagegen", "high-fidelity-page-screenshot"], "agent_role": "Asset agents generate independent visual variants when the deliverable allows it."},
+        {"step": 3, "stage": "handoff", "execution": "serial", "depends_on": ["asset_generation"], "candidate_skills": ["post-formatter"], "agent_role": "Handoff agent inventories files, captions, alt text, and manual publish notes."}
+      ]
+    },
+    {
+      "id": "content_system",
+      "label": "Build a reusable content system",
+      "domain": "systems",
+      "mode": "deep",
+      "triggers": ["content system", "workflow", "calendar", "library", "notion", "operating docs", "内容系统", "工作流", "选题库", "日历", "知识库", "运营文档"],
+      "stages": [
+        {"step": 1, "stage": "strategy", "execution": "parallel", "parallel_group": "system_inputs", "candidate_skills": ["niche-research"], "agent_role": "Strategy agent defines audience, pillars, cadence, and operating assumptions."},
+        {"step": 1, "stage": "measurement", "execution": "parallel", "parallel_group": "system_inputs", "candidate_skills": ["analytics-dashboard"], "agent_role": "Measurement agent reviews available performance data and experiment signals."},
+        {"step": 2, "stage": "systemization", "execution": "serial", "depends_on": ["strategy", "measurement"], "candidate_skills": ["notion-knowledge-capture"], "agent_role": "Systems agent turns strategy and metrics into reusable docs, databases, and workflows."}
+      ]
+    }
+  ]
+}

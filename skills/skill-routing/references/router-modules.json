@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "main_router": "skill-routing",
+  "modules": [
+    {
+      "id": "content",
+      "label": "Content Skill Routing",
+      "skill_name": "content-skill-routing",
+      "skill_path": "../content-skill-routing",
+      "registry_path": "../content-skill-routing/references/pipeline-registry.json",
+      "enabled": true,
+      "domains": [
+        "content",
+        "research",
+        "writing",
+        "visual packaging",
+        "manual publish handoff",
+        "creator systems"
+      ]
+    },
+    {
+      "id": "coding",
+      "label": "Coding Skill Routing",
+      "skill_name": "coding-skill-routing",
+      "skill_path": "../coding-skill-routing",
+      "registry_path": "../coding-skill-routing/references/pipeline-registry.json",
+      "enabled": true,
+      "domains": [
+        "programming",
+        "software engineering",
+        "frontend",
+        "backend",
+        "debugging",
+        "testing",
+        "deployment",
+        "skill tooling"
+      ]
+    }
+  ]
+}
