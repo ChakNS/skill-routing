@@ -2,116 +2,42 @@
 
 Language: [中文](README.md) | English
 
-This repository provides a workflow routing matrix for Codex/Claude Skills. It does not replace downstream skills, and it does not pretend to be smarter than native skill triggering for simple one-step tasks. It handles a different problem: turning a complex request into a traceable chain of stages, candidate skills, dependencies, parallel branches, and final reporting.
+Organize multiple Codex/Claude Skills into a traceable task chain.
 
-If you already have many skills installed, the problem is usually not a lack of tools. The harder problem is orchestration. A model may know many skills exist, but still choose the wrong one first, skip an evidence step, or forget to merge parallel outputs. This project handles that routing layer.
+Think of this as a workflow router. Given a complex request, it decides which domain router should handle it, breaks the work into stages, maps each stage to candidate skills, and marks which stages can run in parallel.
 
-## What it solves
+It is not another writing skill or coding skill. It connects the skills you already have.
 
-Most skills are standalone. A writing skill writes. A screenshot skill captures. A debugging skill debugs. Real tasks are rarely that clean.
+## Install
 
-For example, "prepare a Xiaohongshu/Rednote note package" may involve:
+```bash
+curl -fsSL https://raw.githubusercontent.com/ChakNS/skill-routing/main/scripts/install.sh | bash
+```
 
-- clarifying the topic, platform, and source material
-- generating titles and hooks
-- drafting body copy
-- defining cover direction
-- generating or rendering visual assets
-- preparing a manual publishing checklist
+Default target:
 
-Some stages must be sequential. Others can run in parallel. Title exploration and cover direction can happen at the same time. Body copy and asset generation may also run in parallel. The final handoff stage merges copy, tags, assets, and manual publishing notes.
+```text
+~/.codex/skills
+```
 
-This router does four things:
+Validate after installation:
 
-1. Breaks large tasks into smaller stages.
-2. Matches each stage with candidate skills.
-3. Marks which stages should run serially and which can run in parallel.
-4. Produces a clear routing chain instead of a vague recommendation.
+```bash
+python3 ~/.codex/skills/skill-routing/scripts/router_modules.py validate
+```
 
-It is not a full execution engine. The current version plans, validates, and explains task chains. Actual execution still happens through the agent or downstream skills.
+## Try it
 
-## Features
-
-- Layered routing: domain, layer, stage, then skill.
-- Pluggable modules: ships with `content-skill-routing` and `coding-skill-routing`; more domain routers can be added later.
-- Local skill scan: installation generates `local-skill-profile.generated.json` from the user's existing skills.
-- Soft dependencies: missing downstream skills are treated as recommendations, not fatal errors.
-- Parallel stage metadata: registries can declare `parallel_group` for multi-agent execution.
-- Traceable output: CLI planning shows layers, dependencies, candidate skills, agent roles, and report templates.
-- Machine-readable plans: `plan-json` prints structured routing output for UIs, evals, or a future executor.
-- Routing regression evals: included evals check expected modules, pipelines, stages, and parallel groups.
-- Manual publishing boundary: the content router prepares assets and handoff packages, but does not log in, post, like, comment, or publish.
-
-## When to use it
-
-Use it when:
-
-- a task clearly spans multiple stages, such as research, writing, visuals, and handoff
-- the local environment has many skills and needs a stable composition layer
-- a team wants to audit why an agent selected a chain of skills
-- you want to preserve a repeatable workflow for content packages, UI changes, bug fixes, or skill development
-
-Do not use it when:
-
-- the task is a small rewrite, quick answer, or tiny one-file edit
-- all you need is native skill triggering
-- the task has no repeatable workflow shape
-
-The value is not "skill detection" by itself. The value is organizing multiple skills into a traceable task chain.
-
-## Included routers
-
-### `skill-routing`
-
-The main router. It chooses the right domain router for a task.
-
-Example:
+Content task:
 
 ```bash
 python3 ~/.codex/skills/skill-routing/scripts/router_modules.py plan "prepare a Xiaohongshu note package"
 ```
 
-This dispatches to `content-skill-routing`.
-
-### `content-skill-routing`
-
-For content creation, writing, creator operations, visual packaging, and manual publish handoff.
-
-Good fits:
-
-- Xiaohongshu/Rednote note packages
-- LinkedIn posts
-- articles, newsletters, scripts
-- titles, hooks, topic planning
-- covers, cards, thumbnails, screenshots
-- content systems, topic libraries, analytics reviews
-
-### `coding-skill-routing`
-
-For software engineering, debugging, testing, frontend, backend, deployment, GitHub, and skill development.
-
-Good fits:
-
-- fixing bugs
-- building features
-- improving UI
-- writing tests
-- debugging APIs
-- changing backend or database behavior
-- creating or maintaining skills/plugins
-- preparing commits, PRs, and deployments
-
-## Routing model
-
-Domain routers organize work like this:
+Expected shape:
 
 ```text
-layer -> stage -> candidate skill -> execution metadata -> report line
-```
-
-For a Xiaohongshu note package, the route may look like this:
-
-```text
+content -> xhs_note_package
 step 1: intake
 step 2: title_hook + visual_direction in parallel
 step 3: draft + asset_generation in parallel
@@ -119,88 +45,84 @@ step 4: voice_polish
 step 5: handoff
 ```
 
-The CLI prints:
+Coding task:
 
-- the layer for each stage
-- whether the stage is serial or parallel
-- stage dependencies
-- recommended candidate skills
-- the agent role for each stage
-- the report format expected at the end
+```bash
+python3 ~/.codex/skills/skill-routing/scripts/router_modules.py plan "fix this failing React test and verify browser behavior"
+```
 
-For machine-readable output:
+Machine-readable output:
 
 ```bash
 python3 ~/.codex/skills/skill-routing/scripts/router_modules.py plan-json "prepare a Xiaohongshu note package"
 ```
 
-Recommended final report shape:
+## Who should use it
+
+Use it if:
+
+- you already have many skills and need a stable way to compose them
+- your tasks often cross stages such as research, writing, visuals, and handoff
+- you want the agent to explain which stages and skills were used
+- you are building a reusable internal skill/workflow system
+
+Skip it if:
+
+- the task is a small rewrite, quick answer, or tiny one-file edit
+- you only need native one-step skill triggering
+- the task has no repeatable workflow shape
+
+The value is not "skill detection" by itself. Many agents can already trigger one skill. The value is organizing multiple skills into a traceable task chain.
+
+## Included routers
+
+- `skill-routing`: main router. Dispatches to the right domain router.
+- `content-skill-routing`: content, writing, creator workflows, visual packaging, and manual publishing handoff.
+- `coding-skill-routing`: coding, debugging, testing, frontend, backend, deployment, GitHub, and skill development.
+
+### Content router handles
+
+- Xiaohongshu/Rednote note packages
+- LinkedIn posts
+- articles, newsletters, scripts
+- titles, hooks, topic planning
+- covers, cards, thumbnails, screenshots
+- content systems and analytics reviews
+
+### Coding router handles
+
+- bug fixes
+- feature work
+- UI changes
+- tests
+- API debugging
+- backend/database changes
+- skill/plugin maintenance
+- PR, commit, and deployment preparation
+
+## How routing works
+
+Each domain router organizes work like this:
+
+```text
+layer -> stage -> candidate skill -> execution metadata -> report
+```
+
+In practice:
+
+- `layer`: broad category, such as evidence, creation, packaging, build, or quality
+- `stage`: small task phase, such as research, draft, asset_generation, or test_authoring
+- `candidate skill`: recommended skills for that stage
+- `execution metadata`: serial/parallel, dependencies, and agent role
+- `report`: how the process should be summarized
+
+Recommended report shape:
 
 ```text
 stage -> selected skill or fallback -> execution -> evidence/gate -> status
 ```
 
-## Scenario package model
-
-This project is designed to grow by adding scenario packages, not by stuffing every rule into one giant `SKILL.md`.
-
-A scenario package usually looks like this:
-
-```text
-your-router/
-├── SKILL.md
-├── references/
-│   ├── pipeline-registry.json
-│   ├── route-tables.md
-│   └── routing-fixtures.md
-└── scripts/
-    └── router_registry.py
-```
-
-To add a new scenario package:
-
-1. Create a domain router, such as `design-skill-routing` or `marketing-skill-routing`.
-2. Define layers, stages, skills, and pipelines in `pipeline-registry.json`.
-3. Register the router in `skill-routing/references/router-modules.json`.
-
-Recommended registry shape:
-
-```json
-{
-  "layers": [],
-  "stages": [],
-  "skills": [],
-  "pipelines": []
-}
-```
-
-Pipeline stages may include:
-
-- `step`: execution step
-- `stage`: stage name
-- `candidate_skills`: candidate downstream skills
-- `execution`: `serial` or `parallel`
-- `parallel_group`: parallel group name
-- `depends_on`: upstream stages
-- `agent_role`: the role of the agent handling this stage
-
-This is the core pattern: split a large task into small stages, then chain skills across those stages.
-
-## Installation
-
-After publishing this repository to GitHub, users can install it with one command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/ChakNS/skill-routing/main/scripts/install.sh | bash
-```
-
-If you fork this repository, set `ROUTING_SKILLS_REPO` to your own repository.
-
-Default install target:
-
-```text
-~/.codex/skills
-```
+## Install options
 
 Install only the main router and content router:
 
@@ -226,10 +148,12 @@ curl -fsSL https://raw.githubusercontent.com/ChakNS/skill-routing/main/scripts/i
   bash
 ```
 
-For local development:
+If you fork this repo:
 
 ```bash
-python3 scripts/install.py --target ~/.codex/skills --modules all
+curl -fsSL https://raw.githubusercontent.com/your-name/skill-routing/main/scripts/install.sh | \
+  ROUTING_SKILLS_REPO=your-name/skill-routing \
+  bash
 ```
 
 ## What the installer does
@@ -250,26 +174,65 @@ Default scan roots:
 ~/AISkills
 ```
 
-## Validation
+Downstream skills are soft dependencies. If a recommended skill is missing, the router marks it as a recommendation instead of failing.
 
-From the repository root:
+## Add your own scenario package
+
+You can add domain routers such as:
+
+- `design-skill-routing`
+- `marketing-skill-routing`
+- `research-skill-routing`
+- `ops-skill-routing`
+
+A scenario package usually looks like this:
+
+```text
+your-router/
+├── SKILL.md
+├── references/
+│   ├── pipeline-registry.json
+│   ├── route-tables.md
+│   └── routing-fixtures.md
+└── scripts/
+    └── router_registry.py
+```
+
+The important file is `pipeline-registry.json`:
+
+```json
+{
+  "layers": [],
+  "stages": [],
+  "skills": [],
+  "pipelines": []
+}
+```
+
+A pipeline stage can declare:
+
+- `step`: execution step
+- `stage`: stage name
+- `candidate_skills`: candidate skills
+- `execution`: `serial` or `parallel`
+- `parallel_group`: parallel group name
+- `depends_on`: upstream stages
+- `agent_role`: role of the agent handling this stage
+
+Then register the new router in:
+
+```text
+skill-routing/references/router-modules.json
+```
+
+## Local validation
+
+If you cloned the repository:
 
 ```bash
 python3 scripts/smoke_test.py
-```
-
-Run only routing regression evals:
-
-```bash
 python3 scripts/evaluate_routes.py
 ```
-
-The eval cases live in `evals/routing-evals.json`. They check:
-
-- expected module
-- expected pipeline
-- required stages
-- required parallel groups
 
 Validate installed routers:
 
@@ -277,14 +240,6 @@ Validate installed routers:
 python3 ~/.codex/skills/skill-routing/scripts/router_modules.py validate
 python3 ~/.codex/skills/content-skill-routing/scripts/router_registry.py validate
 python3 ~/.codex/skills/coding-skill-routing/scripts/router_registry.py validate
-```
-
-Try planning:
-
-```bash
-python3 ~/.codex/skills/skill-routing/scripts/router_modules.py plan "prepare a Xiaohongshu note package"
-python3 ~/.codex/skills/content-skill-routing/scripts/router_registry.py plan "write a LinkedIn post from notes and prepare a manual publish package"
-python3 ~/.codex/skills/coding-skill-routing/scripts/router_registry.py plan "improve this skill installer and add tests"
 ```
 
 ## Directory layout
@@ -307,12 +262,12 @@ skill-routing/
     └── coding-skill-routing/
 ```
 
-## Release checklist
+## Boundaries
 
-1. Run `python3 scripts/smoke_test.py`.
-2. If publishing a fork, confirm the default repository name in README and `scripts/install.sh`.
-3. Install into a temporary directory and inspect generated profiles.
-4. Confirm the Chinese and English README files describe the same install flow.
+- This is a routing matrix, not a full executor.
+- It plans chains, prints structured plans, and validates routing rules.
+- Actual execution still happens through the agent and downstream skills.
+- The content router prepares publishing materials only. It does not log in, publish, like, comment, or message.
 
 ## License
 
