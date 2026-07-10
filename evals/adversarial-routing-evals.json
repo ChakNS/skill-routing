@@ -1,0 +1,918 @@
+{
+  "version": 2,
+  "description": "Fresh adversarial routing cases covering substring collisions, negation, direct-skill arbitration, multi-intent composition, router management, visual and technical intent, skill tooling, release gates, ambiguity, alternative leakage, and false missing candidates.",
+  "cases": [
+    {
+      "id": "adv_http_post_regression_not_social",
+      "slices": ["adversarial", "coding", "debugging", "substring", "post"],
+      "prompt": "POST /v3/refunds now returns 502；请定位 regression，但先别碰文案。",
+      "inventory": [
+        {
+          "name": "post-scorer",
+          "description": "Score a LinkedIn post, review a social post, rate a post, and give performance feedback on published content."
+        }
+      ],
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["bug_fix"]},
+      "forbidden_modules": ["content"],
+      "forbidden_pipelines": ["social_post_from_notes"],
+      "forbidden_selected_skills": ["post-scorer"]
+    },
+    {
+      "id": "adv_negated_post_is_coding_only",
+      "slices": ["adversarial", "coding", "zh", "negation", "multi_intent", "post"],
+      "prompt": "不要写帖子，只实现 POST /v2/orders，并补 contract tests。",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["backend_data_change", "feature_from_idea", "test_quality"]},
+      "forbidden_modules": ["content"],
+      "forbidden_pipelines": ["social_post_from_notes"]
+    },
+    {
+      "id": "adv_http_post_explanation_abstains",
+      "slices": ["adversarial", "abstain", "zh", "negation", "post", "question"],
+      "prompt": "这不是社媒帖子；explain HTTP POST 的幂等语义即可。",
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_modules": ["content"],
+      "forbidden_pipelines": ["social_post_from_notes", "backend_data_change"],
+      "forbidden_stages": ["implementation"]
+    },
+    {
+      "id": "adv_api_meetup_poster_is_visual",
+      "slices": ["adversarial", "direct", "visual", "api", "word_sense"],
+      "prompt": "Design a conference poster for our API community meetup.",
+      "inventory": [
+        {
+          "name": "canvas-design",
+          "description": "Create polished posters, visual art, and static graphic designs for events and campaigns."
+        }
+      ],
+      "expected_route_kind": "direct",
+      "required_selected_skills": ["canvas-design"],
+      "forbidden_modules": ["coding"],
+      "forbidden_pipelines": ["backend_data_change"]
+    },
+    {
+      "id": "adv_venture_capital_article",
+      "slices": ["adversarial", "content", "research", "capital", "api_substring"],
+      "prompt": "Write a sourced article about venture capital liquidity in 2026.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "expected_pipelines": {"content": ["researched_article"]},
+      "forbidden_modules": ["coding"],
+      "forbidden_pipelines": ["backend_data_change"]
+    },
+    {
+      "id": "adv_capital_summary_does_not_select_openai_docs",
+      "slices": ["adversarial", "abstain", "direct", "capital", "api_substring", "minimal_inventory"],
+      "prompt": "Summarize Acme’s capital allocation memo into five bullets.",
+      "inventory": [
+        {
+          "name": "openai-docs",
+          "description": "Use for current OpenAI API, ChatGPT, Responses, Assistants, and model integration documentation."
+        }
+      ],
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_selected_skills": ["openai-docs"],
+      "forbidden_modules": ["coding"]
+    },
+    {
+      "id": "adv_capi_insurance_does_not_select_supabase",
+      "slices": ["adversarial", "abstain", "direct", "capi", "api_substring", "minimal_inventory"],
+      "prompt": "Explain what CAPI insurance means to a non-technical reader.",
+      "inventory": [
+        {
+          "name": "supabase",
+          "description": "Use for Supabase backend APIs, Postgres policies, auth, storage, and database migrations."
+        }
+      ],
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_selected_skills": ["supabase"],
+      "forbidden_modules": ["coding"]
+    },
+    {
+      "id": "adv_negated_bug_is_read_only",
+      "slices": ["adversarial", "abstain", "debugging", "negation", "read_only"],
+      "prompt": "Don’t fix the cache bug; only document reliable reproduction steps.",
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_pipelines": ["bug_fix"],
+      "forbidden_stages": ["test_authoring", "implementation"]
+    },
+    {
+      "id": "adv_react_explanation_no_code_changes",
+      "slices": ["adversarial", "abstain", "frontend", "negation", "read_only", "zh"],
+      "prompt": "不要改代码，只解释 React component tree 为什么会重复渲染。",
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_pipelines": ["frontend_ui_change"],
+      "forbidden_stages": ["test_authoring", "implementation", "browser_verification"]
+    },
+    {
+      "id": "adv_never_release_review_only",
+      "slices": ["adversarial", "coding", "review", "release", "negation", "alternative_leakage"],
+      "prompt": "Never release this branch; just review the diff for auth risks.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["code_review"]},
+      "forbidden_pipelines": ["release_pr_deploy"],
+      "forbidden_alternative_pipelines": ["release_pr_deploy"]
+    },
+    {
+      "id": "adv_commit_but_do_not_deploy",
+      "slices": ["adversarial", "coding", "release", "negation", "conditional_candidate"],
+      "prompt": "Commit the already-verified patch locally, but do not deploy.",
+      "inventory": [
+        {"name": "git-commit", "description": "Create a local git commit for verified changes."},
+        {"name": "deploy-to-vercel", "description": "Deploy applications and websites to Vercel and push a site live."}
+      ],
+      "expected_route_kinds": ["direct", "pipeline"],
+      "expected_modules": ["coding"],
+      "required_selected_skills": ["git-commit"],
+      "forbidden_selected_skills": ["deploy-to-vercel"],
+      "forbidden_alternative_skills": ["deploy-to-vercel"]
+    },
+    {
+      "id": "adv_open_pr_without_commit",
+      "slices": ["adversarial", "coding", "release", "negation", "conditional_candidate"],
+      "prompt": "Do not commit anything; open a pull request from the existing commit.",
+      "inventory": [
+        {"name": "git-commit", "description": "Create a local git commit for verified changes."},
+        {"name": "github-pr-creation", "description": "Open and create a GitHub pull request from an existing branch."},
+        {"name": "deploy-to-vercel", "description": "Deploy applications and websites to Vercel."}
+      ],
+      "expected_route_kinds": ["direct", "pipeline"],
+      "expected_modules": ["coding"],
+      "required_selected_skills": ["github-pr-creation"],
+      "forbidden_selected_skills": ["git-commit", "deploy-to-vercel"]
+    },
+    {
+      "id": "adv_conditional_vercel_deploy",
+      "slices": ["adversarial", "coding", "release", "condition", "verification"],
+      "prompt": "Only after CI passes, deploy the site to Vercel.",
+      "inventory": [
+        {"name": "deploy-to-vercel", "description": "Deploy applications and websites to Vercel after required checks pass."}
+      ],
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["release_pr_deploy"]},
+      "required_selected_skills": ["deploy-to-vercel"],
+      "required_stages": ["handoff", "release"]
+    },
+    {
+      "id": "adv_release_notes_not_deployment",
+      "slices": ["adversarial", "direct", "release_notes", "negation", "alternative_leakage"],
+      "prompt": "Draft concise release notes; no deployment is requested.",
+      "inventory": [
+        {"name": "press-release", "description": "Draft and polish concise release notes and announcement copy."},
+        {"name": "deploy-to-vercel", "description": "Deploy applications and websites to Vercel."}
+      ],
+      "expected_route_kind": "direct",
+      "required_selected_skills": ["press-release"],
+      "forbidden_selected_skills": ["deploy-to-vercel"],
+      "forbidden_alternative_skills": ["deploy-to-vercel"]
+    },
+    {
+      "id": "adv_webhook_and_twitter_thread_composes",
+      "slices": ["adversarial", "multi_intent", "coding", "content", "direct_hijack"],
+      "prompt": "Implement a billing webhook, then write a Twitter thread announcing it.",
+      "inventory": [
+        {"name": "pinned-comment", "description": "Write social-media pinned comments and supporting post copy."}
+      ],
+      "expected_route_kind": "composed_pipeline",
+      "expected_modules": ["coding", "content"],
+      "expected_pipelines": {
+        "coding": ["feature_from_idea", "backend_data_change"],
+        "content": ["social_post_from_notes"]
+      },
+      "forbidden_selected_skills": ["pinned-comment"]
+    },
+    {
+      "id": "adv_worker_and_announcement_email_composes",
+      "slices": ["adversarial", "multi_intent", "coding", "content", "email"],
+      "prompt": "Build the webhook retry worker and draft an announcement email for customers.",
+      "expected_route_kind": "composed_pipeline",
+      "expected_modules": ["coding", "content"],
+      "expected_pipelines": {"coding": ["feature_from_idea"]}
+    },
+    {
+      "id": "adv_newsletter_research_and_scraper_composes",
+      "slices": ["adversarial", "multi_intent", "coding", "content", "research"],
+      "prompt": "Gather sources for a newsletter, then build a Python scraper for future issues.",
+      "expected_route_kind": "composed_pipeline",
+      "expected_modules": ["coding", "content"],
+      "expected_pipelines": {
+        "coding": ["feature_from_idea"],
+        "content": ["researched_article"]
+      }
+    },
+    {
+      "id": "adv_css_bug_and_screenshot_composes",
+      "slices": ["adversarial", "multi_intent", "coding", "content", "visual", "debugging"],
+      "prompt": "Fix the mobile CSS overflow and create a shareable screenshot of the result.",
+      "expected_route_kind": "composed_pipeline",
+      "expected_modules": ["coding", "content"],
+      "expected_pipelines": {
+        "coding": ["bug_fix", "frontend_ui_change"],
+        "content": ["visual_asset_package"]
+      }
+    },
+    {
+      "id": "adv_auth_endpoint_and_launch_post_composes",
+      "slices": ["adversarial", "multi_intent", "coding", "content", "launch"],
+      "prompt": "Add an auth endpoint and write the launch post for it.",
+      "expected_route_kind": "composed_pipeline",
+      "expected_modules": ["coding", "content"],
+      "expected_pipelines": {
+        "coding": ["backend_data_change", "feature_from_idea"],
+        "content": ["social_post_from_notes"]
+      }
+    },
+    {
+      "id": "adv_http_router_is_software",
+      "slices": ["adversarial", "coding", "management", "router_word_sense"],
+      "prompt": "Implement an HTTP router middleware that retries idempotent requests.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["feature_from_idea", "backend_data_change"]},
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "adv_route_registry_is_management",
+      "slices": ["adversarial", "management", "route_registry"],
+      "prompt": "List stale local skill bindings and validate the route registry.",
+      "expected_route_kind": "management",
+      "expected_matched": true,
+      "forbidden_modules": ["coding", "content"]
+    },
+    {
+      "id": "adv_skill_router_plugin_is_development",
+      "slices": ["adversarial", "coding", "skill_tooling", "management", "plugin"],
+      "prompt": "Create a plugin that visualizes our skill router graph.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["skill_development"]},
+      "required_stages": ["design", "test_authoring", "implementation", "handoff"]
+    },
+    {
+      "id": "adv_routing_profile_refresh_is_management",
+      "slices": ["adversarial", "management", "zh", "profile"],
+      "prompt": "重新扫描已安装 skills，并检查重复名称和 routing profile。",
+      "expected_route_kind": "management",
+      "expected_matched": true,
+      "forbidden_modules": ["coding", "content"]
+    },
+    {
+      "id": "adv_hero_image_uses_visual_pipeline",
+      "slices": ["adversarial", "content", "visual", "direct_hijack", "launch"],
+      "prompt": "Generate a cinematic hero image for the product launch page.",
+      "inventory": [
+        {"name": "product-launch-gtm", "description": "Plan product launches, GTM channels, launch sizing, and post-launch review."},
+        {"name": "imagegen", "description": "Generate or edit raster images, illustrations, covers, and hero artwork."}
+      ],
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "expected_pipelines": {"content": ["visual_asset_package"]},
+      "required_selected_skills": ["imagegen"],
+      "forbidden_selected_skills": ["product-launch-gtm"]
+    },
+    {
+      "id": "adv_docker_image_failure_is_debugging",
+      "slices": ["adversarial", "coding", "debugging", "visual_word_sense", "image"],
+      "prompt": "Our Docker image build is broken after the Alpine upgrade; debug it.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["bug_fix"]},
+      "forbidden_modules": ["content"],
+      "forbidden_pipelines": ["visual_asset_package"]
+    },
+    {
+      "id": "adv_screenshot_regression_is_testing",
+      "slices": ["adversarial", "coding", "testing", "debugging", "visual_word_sense"],
+      "prompt": "The screenshot regression test fails only on Firefox; investigate.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["test_quality", "bug_fix"]},
+      "forbidden_modules": ["content"],
+      "forbidden_pipelines": ["visual_asset_package"]
+    },
+    {
+      "id": "adv_image_classification_endpoint_is_backend",
+      "slices": ["adversarial", "coding", "backend", "visual_word_sense", "api"],
+      "prompt": "Add an image-classification endpoint to the FastAPI service.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["backend_data_change", "feature_from_idea"]},
+      "forbidden_modules": ["content"],
+      "forbidden_pipelines": ["visual_asset_package"]
+    },
+    {
+      "id": "adv_postgres_research_is_direct",
+      "slices": ["adversarial", "direct", "research", "backend", "read_only"],
+      "prompt": "Compare Postgres 16 query-planner changes and cite primary sources; no code edits.",
+      "inventory": [
+        {"name": "anysearch", "description": "Research current public facts and find primary sources, evidence, and technical references."}
+      ],
+      "expected_route_kind": "direct",
+      "required_selected_skills": ["anysearch"],
+      "forbidden_pipelines": ["backend_data_change"],
+      "forbidden_stages": ["test_authoring", "implementation"]
+    },
+    {
+      "id": "adv_fastapi_cve_research_is_direct",
+      "slices": ["adversarial", "direct", "research", "security", "backend", "read_only"],
+      "prompt": "Research the latest FastAPI CVE impact on our service; do not modify code.",
+      "inventory": [
+        {"name": "anysearch", "description": "Research current security facts and find primary sources, CVEs, evidence, and technical references."}
+      ],
+      "expected_route_kind": "direct",
+      "required_selected_skills": ["anysearch"],
+      "forbidden_pipelines": ["backend_data_change", "bug_fix"],
+      "forbidden_stages": ["test_authoring", "implementation"]
+    },
+    {
+      "id": "adv_react_concept_question_abstains",
+      "slices": ["adversarial", "abstain", "frontend", "question", "read_only"],
+      "prompt": "What does React reconciliation do? Give me a conceptual explanation.",
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_pipelines": ["frontend_ui_change"],
+      "forbidden_stages": ["test_authoring", "implementation", "browser_verification"]
+    },
+    {
+      "id": "adv_openai_docs_only_no_implementation",
+      "slices": ["adversarial", "direct", "framework", "research", "read_only"],
+      "prompt": "Verify the current OpenAI Responses request fields from official docs; implementation is out of scope.",
+      "inventory": [
+        {"name": "openai-docs", "description": "Use official OpenAI documentation to answer current Responses API and product questions."}
+      ],
+      "expected_route_kind": "direct",
+      "expected_modules": ["coding"],
+      "required_selected_skills": ["openai-docs"],
+      "forbidden_pipelines": ["openai_api_work"],
+      "forbidden_stages": ["test_authoring", "implementation"]
+    },
+    {
+      "id": "adv_create_incident_skill",
+      "slices": ["adversarial", "coding", "skill_tooling", "implementation"],
+      "prompt": "Create a new SKILL.md for triaging production incidents, with trigger evals.",
+      "inventory": [
+        {"name": "skill-creator", "description": "Create, edit, evaluate, test, and package agent skills and SKILL.md files."}
+      ],
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["skill_development"]},
+      "required_selected_skills": ["skill-creator"],
+      "required_stages": ["design", "test_authoring", "implementation", "handoff"]
+    },
+    {
+      "id": "adv_skill_frontmatter_explanation_is_direct",
+      "slices": ["adversarial", "direct", "skill_tooling", "question", "read_only"],
+      "prompt": "Explain the purpose of SKILL.md frontmatter; no files should change.",
+      "inventory": [
+        {"name": "skill-creator", "description": "Explain, create, edit, evaluate, test, and package agent skills and SKILL.md files."}
+      ],
+      "expected_route_kind": "direct",
+      "expected_modules": ["coding"],
+      "required_selected_skills": ["skill-creator"],
+      "forbidden_pipelines": ["skill_development"],
+      "forbidden_stages": ["test_authoring", "implementation"]
+    },
+    {
+      "id": "adv_plugin_install_uses_installer",
+      "slices": ["adversarial", "direct", "skill_tooling", "plugin", "install"],
+      "prompt": "Install the approved calendar plugin and refresh its local skill entry.",
+      "inventory": [
+        {"name": "plugin-creator", "description": "Create and scaffold new Codex plugin directories and manifests."},
+        {"name": "skill-installer", "description": "Install approved Codex plugins or skills and refresh their local skill entries."}
+      ],
+      "expected_route_kind": "direct",
+      "required_selected_skills": ["skill-installer"],
+      "forbidden_selected_skills": ["plugin-creator"]
+    },
+    {
+      "id": "adv_read_only_skill_eval_has_no_implementation",
+      "slices": ["adversarial", "skill_tooling", "evaluation", "negation", "read_only"],
+      "prompt": "Evaluate this routing skill’s false-positive triggers without editing it.",
+      "inventory": [
+        {"name": "skill-creator", "description": "Create, edit, evaluate, test, and package agent skills and routing behavior."}
+      ],
+      "expected_route_kinds": ["direct", "pipeline"],
+      "expected_modules": ["coding"],
+      "required_selected_skills": ["skill-creator"],
+      "forbidden_stages": ["implementation"]
+    },
+    {
+      "id": "adv_explicit_stop_slop_direct",
+      "slices": ["adversarial", "direct", "named_skill", "writing"],
+      "prompt": "Use stop-slop on the paragraph below and return only the revised prose.",
+      "inventory": [
+        {"name": "stop-slop", "description": "Remove AI writing patterns and revise prose to sound natural and direct."}
+      ],
+      "expected_route_kind": "direct",
+      "required_selected_skills": ["stop-slop"]
+    },
+    {
+      "id": "adv_explicit_anysearch_direct",
+      "slices": ["adversarial", "direct", "named_skill", "research"],
+      "prompt": "Use anysearch to find three primary sources about WebAssembly GC.",
+      "inventory": [
+        {"name": "anysearch", "description": "Research public facts and find primary sources and evidence."}
+      ],
+      "expected_route_kind": "direct",
+      "expected_modules": ["content"],
+      "required_selected_skills": ["anysearch"]
+    },
+    {
+      "id": "adv_explicit_openai_docs_direct",
+      "slices": ["adversarial", "direct", "named_skill", "framework"],
+      "prompt": "Use openai-docs to answer whether Responses streaming emits usage events.",
+      "inventory": [
+        {"name": "openai-docs", "description": "Use official OpenAI documentation to answer current Responses API questions."}
+      ],
+      "expected_route_kind": "direct",
+      "expected_modules": ["coding"],
+      "required_selected_skills": ["openai-docs"]
+    },
+    {
+      "id": "adv_explicit_playwright_cli_direct",
+      "slices": ["adversarial", "direct", "named_skill", "browser"],
+      "prompt": "Use playwright-cli for one browser smoke check of localhost:4173.",
+      "inventory": [
+        {"name": "playwright-cli", "description": "Run focused browser smoke checks and automate browser interactions."}
+      ],
+      "expected_route_kind": "direct",
+      "required_selected_skills": ["playwright-cli"]
+    },
+    {
+      "id": "adv_vague_polish_abstains",
+      "slices": ["adversarial", "abstain", "vague", "direct_hijack"],
+      "prompt": "Make this clearer and less stiff.",
+      "inventory": [
+        {"name": "animation-principles", "description": "Apply animation principles such as easing, anticipation, stiffness, and timing."}
+      ],
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_selected_skills": ["animation-principles"]
+    },
+    {
+      "id": "adv_go_ahead_abstains",
+      "slices": ["adversarial", "abstain", "vague", "direct_hijack"],
+      "prompt": "Go ahead and handle it.",
+      "inventory": [
+        {"name": "codex", "description": "Delegate explicitly requested coding work to the Codex CLI agent."}
+      ],
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_selected_skills": ["codex"]
+    },
+    {
+      "id": "adv_vague_analyze_zh_abstains",
+      "slices": ["adversarial", "abstain", "vague", "direct_hijack", "zh"],
+      "prompt": "分析一下这个。",
+      "inventory": [
+        {"name": "dbs-content", "description": "Diagnose concrete content topics and content-creation strategy."}
+      ],
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_selected_skills": ["dbs-content"]
+    },
+    {
+      "id": "adv_prepare_pr_do_not_deploy",
+      "slices": ["adversarial", "coding", "release", "negation", "minimal_inventory", "safety"],
+      "prompt": "Prepare a PR for the checked-out branch; do not deploy it.",
+      "inventory": [
+        {"name": "deploy-to-vercel", "description": "Deploy applications and websites to Vercel, push them live, or create preview deployments."},
+        {"name": "github-pr-creation", "description": "Prepare, create, and open a GitHub PR or pull request for the current branch."}
+      ],
+      "expected_route_kinds": ["direct", "pipeline"],
+      "expected_modules": ["coding"],
+      "required_selected_skills": ["github-pr-creation"],
+      "forbidden_selected_skills": ["deploy-to-vercel"],
+      "forbidden_alternative_skills": ["deploy-to-vercel"]
+    },
+    {
+      "id": "adv_ship_live_selects_deploy",
+      "slices": ["adversarial", "coding", "release", "synonym", "direct_hijack"],
+      "prompt": "Ship the static website live after the smoke checks pass.",
+      "inventory": [
+        {"name": "after-effects", "description": "Create motion graphics and animation work in Adobe After Effects."},
+        {"name": "deploy-to-vercel", "description": "Deploy static websites, ship a site, push it live, and create production deployments."}
+      ],
+      "expected_route_kinds": ["direct", "pipeline"],
+      "expected_modules": ["coding"],
+      "required_selected_skills": ["deploy-to-vercel"],
+      "forbidden_selected_skills": ["after-effects"]
+    },
+    {
+      "id": "adv_api_changelog_is_social_content",
+      "slices": ["adversarial", "content", "api", "social", "zh", "read_only"],
+      "prompt": "把 API changelog 改写成一条中文社媒帖子，不做代码修改。",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "expected_pipelines": {"content": ["social_post_from_notes"]},
+      "forbidden_modules": ["coding"],
+      "forbidden_pipelines": ["backend_data_change"],
+      "forbidden_stages": ["implementation"]
+    },
+    {
+      "id": "adv_negated_article_cover_image",
+      "slices": ["adversarial", "content", "visual", "negation", "alternative_leakage"],
+      "prompt": "Don’t write an article; only generate a square cover image.",
+      "inventory": [
+        {"name": "imagegen", "description": "Generate raster images, square cover art, and visual assets."}
+      ],
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "expected_pipelines": {"content": ["visual_asset_package"]},
+      "required_selected_skills": ["imagegen"],
+      "forbidden_pipelines": ["researched_article"],
+      "forbidden_alternative_pipelines": ["researched_article"]
+    },
+    {
+      "id": "adv_post_writer_does_not_match_poster_substring",
+      "slices": ["adversarial", "abstain", "post_substring", "minimal_inventory", "direct_hijack"],
+      "prompt": "The poster should use blue ink.",
+      "inventory": [
+        {"name": "post-writer", "description": "Write LinkedIn posts and social posts from notes in the user's voice."}
+      ],
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_selected_skills": ["post-writer"]
+    },
+    {
+      "id": "adv_selected_researcher_does_not_report_alternative_missing",
+      "slices": ["adversarial", "content", "research", "minimal_inventory", "candidate_leakage"],
+      "prompt": "Write a sourced article comparing WASM runtimes.",
+      "inventory": [
+        {"name": "anysearch", "description": "Research current public facts and find primary sources and evidence."}
+      ],
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "expected_pipelines": {"content": ["researched_article"]},
+      "required_selected_skills": ["anysearch"],
+      "expected_stage_status": {"content:research": "selected"},
+      "forbidden_stage_missing": {"content:research": ["niche-research"]}
+    },
+    {
+      "id": "adv_selected_image_renderer_does_not_report_alternative_missing",
+      "slices": ["adversarial", "content", "visual", "zh", "minimal_inventory", "candidate_leakage"],
+      "prompt": "准备一篇小红书新品笔记，需要标题、正文和封面图。",
+      "inventory": [
+        {"name": "imagegen", "description": "Generate raster images, cover art, and visual assets."}
+      ],
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "expected_pipelines": {"content": ["xhs_note_package"]},
+      "required_selected_skills": ["imagegen"],
+      "expected_stage_status": {"content:asset_generation": "selected"},
+      "forbidden_stage_missing": {"content:asset_generation": ["guizang-social-card-skill"]}
+    },
+    {
+      "id": "adv_common_develop_react_app_routes_to_coding",
+      "slices": ["adversarial", "coding", "common_software"],
+      "prompt": "Develop a React app.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["feature_from_idea", "frontend_ui_change"]},
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "adv_common_refactor_react_component_routes_to_frontend",
+      "slices": ["adversarial", "coding", "frontend", "common_software"],
+      "prompt": "Refactor this React component.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["frontend_ui_change"]},
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "adv_common_python_cli_routes_to_feature",
+      "slices": ["adversarial", "coding", "cli", "common_software"],
+      "prompt": "Create a Python CLI.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["feature_from_idea"]},
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "adv_common_parser_routes_to_feature",
+      "slices": ["adversarial", "coding", "parser", "common_software"],
+      "prompt": "Write a parser for CSV files.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["feature_from_idea"]},
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "adv_common_backend_optimization_routes_to_backend",
+      "slices": ["adversarial", "coding", "backend", "common_software"],
+      "prompt": "Optimize this API endpoint.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["backend_data_change"]},
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "adv_common_schema_design_routes_to_backend",
+      "slices": ["adversarial", "coding", "database", "common_software"],
+      "prompt": "Design a database schema.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["backend_data_change"]},
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "adv_common_code_review_routes_to_review",
+      "slices": ["adversarial", "coding", "review", "common_software"],
+      "prompt": "Review this code for bugs.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["code_review"]},
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "adv_common_slow_endpoint_routes_to_backend_or_bug",
+      "slices": ["adversarial", "coding", "debugging", "common_software"],
+      "prompt": "Investigate why this endpoint is slow.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["backend_data_change", "bug_fix"]},
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "adv_common_auth_failure_routes_to_bug",
+      "slices": ["adversarial", "coding", "debugging", "common_software"],
+      "prompt": "Diagnose this auth failure.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["bug_fix", "backend_data_change"]},
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "adv_common_screenshot_page_routes_to_visual",
+      "slices": ["adversarial", "content", "visual", "common_request"],
+      "prompt": "Screenshot this page.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "expected_pipelines": {"content": ["visual_asset_package"]},
+      "forbidden_modules": ["coding"]
+    },
+    {
+      "id": "adv_build_newsletter_audience_is_not_coding",
+      "slices": ["adversarial", "content", "build_word_sense"],
+      "prompt": "Build a newsletter audience and write an article.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "expected_pipelines": {"content": ["researched_article"]},
+      "forbidden_modules": ["coding"],
+      "forbidden_pipelines": ["feature_from_idea"]
+    },
+    {
+      "id": "adv_add_examples_to_article_is_not_coding",
+      "slices": ["adversarial", "content", "add_word_sense"],
+      "prompt": "Add examples to this article.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "expected_pipelines": {"content": ["researched_article"]},
+      "forbidden_modules": ["coding"],
+      "forbidden_pipelines": ["feature_from_idea"]
+    },
+    {
+      "id": "adv_add_salt_to_recipe_abstains",
+      "slices": ["adversarial", "abstain", "add_word_sense"],
+      "prompt": "Add salt to this recipe.",
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_modules": ["coding"],
+      "forbidden_pipelines": ["feature_from_idea"]
+    },
+    {
+      "id": "adv_write_youtube_script_not_coding_script",
+      "slices": ["adversarial", "abstain", "script_word_sense"],
+      "prompt": "Write a script for a YouTube video.",
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_modules": ["coding"],
+      "forbidden_pipelines": ["feature_from_idea"]
+    },
+    {
+      "id": "adv_twitter_audience_post_is_content",
+      "slices": ["adversarial", "content", "social", "build_word_sense"],
+      "prompt": "Build a Twitter audience and write a post.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "expected_pipelines": {"content": ["social_post_from_notes"]},
+      "forbidden_modules": ["coding"],
+      "forbidden_pipelines": ["feature_from_idea"]
+    },
+    {
+      "id": "adv_repeated_negation_article_second_clause_wins",
+      "slices": ["adversarial", "content", "negation", "repeated_phrase"],
+      "prompt": "Do not write a post now; write an article instead.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "expected_pipelines": {"content": ["researched_article"]},
+      "forbidden_pipelines": ["social_post_from_notes"]
+    },
+    {
+      "id": "adv_repeated_negation_deploy_second_clause_wins",
+      "slices": ["adversarial", "coding", "negation", "release", "repeated_phrase"],
+      "prompt": "Do not deploy staging; deploy production after approval.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["release_pr_deploy"]}
+    },
+    {
+      "id": "adv_unpunctuated_zh_negation_second_clause_wins",
+      "slices": ["adversarial", "coding", "zh", "negation", "repeated_phrase"],
+      "prompt": "不要修复前端而是修复接口",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["bug_fix", "backend_data_change"]},
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "adv_common_retry_http_client_routes_to_feature",
+      "slices": ["adversarial", "coding", "common_software"],
+      "prompt": "Add retry logic to the HTTP client.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["feature_from_idea", "backend_data_change"]},
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "adv_common_cron_job_routes_to_feature",
+      "slices": ["adversarial", "coding", "common_software"],
+      "prompt": "Create a cron job.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["feature_from_idea"]},
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "adv_common_dark_mode_routes_to_frontend",
+      "slices": ["adversarial", "coding", "frontend", "common_software"],
+      "prompt": "Implement dark mode.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["frontend_ui_change"]},
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "adv_common_stripe_payments_routes_to_backend",
+      "slices": ["adversarial", "coding", "backend", "common_software"],
+      "prompt": "Integrate Stripe payments.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["backend_data_change"]},
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "adv_common_button_page_routes_to_frontend",
+      "slices": ["adversarial", "coding", "frontend", "common_software"],
+      "prompt": "Add a button to the page.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["frontend_ui_change"]},
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "adv_build_library_is_not_content_system",
+      "slices": ["adversarial", "coding", "content_collision"],
+      "prompt": "Build a Python library.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["feature_from_idea"]},
+      "forbidden_modules": ["content"],
+      "forbidden_pipelines": ["content_system"]
+    },
+    {
+      "id": "adv_calendar_app_is_not_content_calendar",
+      "slices": ["adversarial", "coding", "content_collision"],
+      "prompt": "Build a calendar app.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["feature_from_idea", "frontend_ui_change"]},
+      "forbidden_modules": ["content"],
+      "forbidden_pipelines": ["content_system"]
+    },
+    {
+      "id": "adv_customer_story_library_is_not_software",
+      "slices": ["adversarial", "abstain", "content_collision"],
+      "prompt": "Build a library of customer stories.",
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_modules": ["coding"],
+      "forbidden_pipelines": ["feature_from_idea"]
+    },
+    {
+      "id": "adv_function_description_manual_is_not_software",
+      "slices": ["adversarial", "abstain", "function_word_sense"],
+      "prompt": "Write a function description for the manual.",
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_modules": ["coding"],
+      "forbidden_pipelines": ["feature_from_idea"]
+    },
+    {
+      "id": "adv_pagination_report_is_not_frontend",
+      "slices": ["adversarial", "abstain", "frontend_word_sense"],
+      "prompt": "Add pagination to this report.",
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_modules": ["coding"],
+      "forbidden_pipelines": ["frontend_ui_change"]
+    },
+    {
+      "id": "adv_dark_mode_brand_guidelines_is_not_frontend",
+      "slices": ["adversarial", "abstain", "frontend_word_sense"],
+      "prompt": "Implement dark mode in the brand guidelines.",
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_modules": ["coding"],
+      "forbidden_pipelines": ["frontend_ui_change"]
+    },
+    {
+      "id": "adv_negated_exclude_keeps_frontend_target",
+      "slices": ["adversarial", "coding", "frontend", "negation", "exclude"],
+      "prompt": "Add pagination to the UI, not to the report.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["frontend_ui_change"]},
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "adv_negated_explicit_skill_name_does_not_direct_route",
+      "slices": ["adversarial", "content", "direct", "negation"],
+      "prompt": "Do not use imagegen; write an article instead.",
+      "inventory": [
+        {"name": "imagegen", "description": "Generate images and visual assets."}
+      ],
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "expected_pipelines": {"content": ["researched_article"]},
+      "forbidden_selected_skills": ["imagegen"]
+    },
+    {
+      "id": "adv_negated_design_does_not_select_canvas",
+      "slices": ["adversarial", "abstain", "direct", "negation"],
+      "prompt": "Do not design a poster; just brainstorm ideas.",
+      "inventory": [
+        {"name": "canvas-design", "description": "Design posters, cards, and visual layouts."}
+      ],
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_selected_skills": ["canvas-design"]
+    },
+    {
+      "id": "adv_negated_research_does_not_select_anysearch",
+      "slices": ["adversarial", "abstain", "direct", "negation"],
+      "prompt": "Do not research sources; summarize my text.",
+      "inventory": [
+        {"name": "anysearch", "description": "Research current public sources and evidence."}
+      ],
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_selected_skills": ["anysearch"]
+    },
+    {
+      "id": "adv_negated_commit_does_not_select_git_commit",
+      "slices": ["adversarial", "abstain", "direct", "negation", "permission"],
+      "prompt": "Do not commit; only summarize the changed files.",
+      "inventory": [
+        {"name": "git-commit", "description": "Create local git commits for completed changes."}
+      ],
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_selected_skills": ["git-commit"]
+    },
+    {
+      "id": "adv_negated_pr_creation_does_not_select_github_pr_creation",
+      "slices": ["adversarial", "coding", "direct", "negation", "permission"],
+      "prompt": "Do not open a pull request; only review the code changes.",
+      "inventory": [
+        {"name": "github-pr-creation", "description": "Open and create GitHub pull requests."}
+      ],
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["code_review"]},
+      "forbidden_selected_skills": ["github-pr-creation"]
+    },
+    {
+      "id": "adv_negated_debug_does_not_select_debugging",
+      "slices": ["adversarial", "abstain", "direct", "negation"],
+      "prompt": "Do not debug or investigate; explain the error message.",
+      "inventory": [
+        {"name": "systematic-debugging", "description": "Debug and investigate failures, regressions, and error messages."}
+      ],
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_selected_skills": ["systematic-debugging"]
+    }
+  ]
+}

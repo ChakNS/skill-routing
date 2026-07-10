@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "router": "coding-skill-routing",
   "layers": [
     {"id": "intake", "label": "Intake", "purpose": "Clarify repository, acceptance criteria, risk boundaries, and write permissions."},
@@ -193,6 +193,16 @@
       "stages": ["release"],
       "use_when": "The user asks to deploy an application or website to Vercel.",
       "install_hint": "Recommended for deployment workflows."
+    },
+    {
+      "name": "github-pr-review",
+      "priority": "normal",
+      "category": "review",
+      "layer": "quality",
+      "parallel_safe": true,
+      "stages": ["context_scan", "security_review", "handoff"],
+      "use_when": "The user asks to review a pull request, review feedback, or inspect a change for regressions.",
+      "install_hint": "Recommended for GitHub pull-request review workflows."
     }
   ],
   "pipelines": [
@@ -201,13 +211,15 @@
       "label": "Design, implement, and verify a feature",
       "domain": "implementation",
       "mode": "default",
-      "triggers": ["feature", "implement", "add", "build", "integrate", "功能", "实现", "新增", "构建", "集成"],
+      "required_any": ["feature", "add a feature", "retry logic", "http client", "cron job", "command-line tool", "software library", "python library", "js library", "this function", "python function", "javascript function", "algorithm", "add logging", "logging to this function", "calendar app", "workflow engine", "engine", "web app", "react app", "next app", "mobile app", "cli", "parser", "middleware", "worker", "scraper", "webhook", "plugin", "POST /", "GET /", "PUT /", "DELETE /", "功能", "新增功能", "重试逻辑", "定时任务", "命令行工具", "软件库", "这个函数", "算法", "添加日志", "应用开发", "工作流引擎", "引擎", "命令行", "解析器", "中间件", "爬虫", "webhook", "插件"],
+      "intent_any": ["implement", "build", "create", "develop", "write", "add", "integrate", "实现", "构建", "创建", "开发", "编写", "新增", "集成"],
+      "triggers": ["feature", "add a feature", "retry logic", "http client", "cron job", "command-line tool", "software library", "python library", "js library", "this function", "python function", "javascript function", "algorithm", "add logging", "logging to this function", "calendar app", "workflow engine", "engine", "web app", "react app", "next app", "mobile app", "cli", "parser", "middleware", "worker", "scraper", "webhook", "plugin", "POST /", "GET /", "PUT /", "DELETE /", "功能", "新增功能", "重试逻辑", "定时任务", "命令行工具", "软件库", "这个函数", "算法", "添加日志", "应用开发", "工作流引擎", "引擎", "命令行", "解析器", "中间件", "爬虫", "webhook", "插件"],
       "stages": [
         {"step": 1, "stage": "context_scan", "execution": "serial", "candidate_skills": ["understand", "codegraph"], "agent_role": "Context agent inspects project rules, nearby patterns, and impact areas."},
         {"step": 2, "stage": "plan", "execution": "serial", "depends_on": ["context_scan"], "candidate_skills": ["planning-with-files"], "agent_role": "Planning agent turns findings into a checkable implementation sequence."},
-        {"step": 3, "stage": "test_authoring", "execution": "parallel", "parallel_group": "build_and_tests", "depends_on": ["plan"], "candidate_skills": ["test-driven-development"], "agent_role": "Test agent defines or updates acceptance tests in parallel when file ownership is separable."},
-        {"step": 3, "stage": "implementation", "execution": "parallel", "parallel_group": "build_and_tests", "depends_on": ["plan"], "candidate_skills": ["systematic-implementation", "test-driven-development"], "agent_role": "Implementation agent edits the production path while coordinating with the test branch."},
-        {"step": 4, "stage": "handoff", "execution": "serial", "depends_on": ["implementation", "test_authoring"], "candidate_skills": ["verification-before-completion"], "agent_role": "Verification agent runs checks and summarizes the outcome."}
+        {"step": 3, "stage": "test_authoring", "execution": "serial", "depends_on": ["plan"], "candidate_skills": ["test-driven-development"], "agent_role": "Test agent defines the failing acceptance or regression test before production edits."},
+        {"step": 4, "stage": "implementation", "execution": "serial", "depends_on": ["test_authoring"], "candidate_skills": ["systematic-implementation"], "agent_role": "Implementation agent makes the smallest production change that satisfies the test."},
+        {"step": 5, "stage": "handoff", "execution": "serial", "depends_on": ["implementation"], "candidate_skills": ["verification-before-completion"], "agent_role": "Verification agent runs checks and summarizes the outcome."}
       ]
     },
     {
@@ -215,12 +227,14 @@
       "label": "Reproduce, debug, fix, and verify a bug",
       "domain": "debugging",
       "mode": "default",
-      "triggers": ["bug", "fix", "failing", "error", "regression", "broken", "debug", "修复", "报错", "失败", "回归", "坏了", "调试"],
+      "required_any": ["bug", "fix", "failing", "failure", "error", "regression", "broken", "debug", "slow", "修复", "报错", "失败", "回归", "坏了", "调试", "变慢"],
+      "intent_any": ["fix", "debug", "diagnose", "investigate", "resolve", "optimize", "修复", "调试", "诊断", "定位", "排查", "解决", "优化"],
+      "triggers": ["bug", "fix", "failing", "failure", "error", "regression", "broken", "debug", "slow", "修复", "报错", "失败", "回归", "坏了", "调试", "变慢"],
       "stages": [
         {"step": 1, "stage": "debugging", "execution": "serial", "candidate_skills": ["systematic-debugging"], "agent_role": "Debugging agent reproduces the failure and identifies root cause before edits."},
-        {"step": 2, "stage": "implementation", "execution": "parallel", "parallel_group": "fix_and_regression", "depends_on": ["debugging"], "candidate_skills": ["systematic-implementation"], "agent_role": "Fix agent changes the smallest responsible code path."},
-        {"step": 2, "stage": "test_authoring", "execution": "parallel", "parallel_group": "fix_and_regression", "depends_on": ["debugging"], "candidate_skills": ["test-driven-development"], "agent_role": "Regression-test agent captures the failure if test files can be isolated."},
-        {"step": 3, "stage": "handoff", "execution": "serial", "depends_on": ["implementation", "test_authoring"], "candidate_skills": ["verification-before-completion"], "agent_role": "Verification agent reruns the repro and relevant tests."}
+        {"step": 2, "stage": "test_authoring", "execution": "serial", "depends_on": ["debugging"], "candidate_skills": ["test-driven-development"], "agent_role": "Regression-test agent captures the reproduced failure before the fix."},
+        {"step": 3, "stage": "implementation", "execution": "serial", "depends_on": ["test_authoring"], "candidate_skills": ["systematic-implementation"], "agent_role": "Fix agent changes the smallest responsible code path."},
+        {"step": 4, "stage": "handoff", "execution": "serial", "depends_on": ["implementation"], "candidate_skills": ["verification-before-completion"], "agent_role": "Verification agent reruns the repro and relevant tests."}
       ]
     },
     {
@@ -228,14 +242,17 @@
       "label": "Implement and visually verify frontend/UI changes",
       "domain": "frontend_ui",
       "mode": "default",
-      "triggers": ["frontend", "ui", "react", "component", "layout", "responsive", "visual", "page", "前端", "界面", "组件", "布局", "响应式", "页面"],
+      "required_any": ["frontend", "ui", "react", "component", "layout", "responsive", "web app", "dark mode", "pagination", "button", "page", "前端", "界面", "组件", "布局", "响应式", "深色模式", "分页", "按钮", "页面"],
+      "intent_any": ["implement", "build", "create", "develop", "fix", "change", "update", "redesign", "refactor", "add", "实现", "构建", "创建", "开发", "修复", "修改", "更新", "重构", "新增"],
+      "exclude": ["report", "manual", "brand guidelines", "brand guideline", "customer stories", "报告", "手册", "品牌规范", "客户故事"],
+      "triggers": ["frontend", "ui", "react", "component", "layout", "responsive", "visual", "dark mode", "pagination", "button", "page", "前端", "界面", "组件", "布局", "响应式", "深色模式", "分页", "按钮", "页面"],
       "stages": [
         {"step": 1, "stage": "context_scan", "execution": "serial", "candidate_skills": ["understand"], "agent_role": "Context agent inspects app structure, existing components, and design conventions."},
-        {"step": 2, "stage": "design", "execution": "parallel", "parallel_group": "design_and_acceptance", "depends_on": ["context_scan"], "candidate_skills": ["frontend-design", "next-best-practices", "shadcn"], "agent_role": "Design agent chooses UX, component, responsive, and visual approach."},
+        {"step": 2, "stage": "design", "execution": "parallel", "parallel_group": "design_and_acceptance", "depends_on": ["context_scan"], "candidate_skills": ["frontend-design", "next-best-practices"], "candidate_conditions": {"next-best-practices": ["next.js", "nextjs", "next js"]}, "agent_role": "Design agent chooses UX, component, responsive, and visual approach."},
         {"step": 2, "stage": "test_authoring", "execution": "parallel", "parallel_group": "design_and_acceptance", "depends_on": ["context_scan"], "candidate_skills": ["test-driven-development"], "agent_role": "Acceptance-test agent prepares behavior checks while design is being finalized."},
-        {"step": 3, "stage": "implementation", "execution": "serial", "depends_on": ["design", "test_authoring"], "candidate_skills": ["systematic-implementation", "frontend-design"], "agent_role": "Implementation agent edits components, styles, and states."},
+        {"step": 3, "stage": "implementation", "execution": "serial", "depends_on": ["design", "test_authoring"], "candidate_skills": ["systematic-implementation", "frontend-design", "shadcn"], "candidate_conditions": {"shadcn": ["shadcn"]}, "agent_role": "Implementation agent edits components, styles, and states."},
         {"step": 4, "stage": "browser_verification", "execution": "parallel", "parallel_group": "ui_verification", "depends_on": ["implementation"], "candidate_skills": ["webapp-testing"], "agent_role": "Browser agent verifies interactions and captures runtime evidence."},
-        {"step": 4, "stage": "visual_qa", "execution": "parallel", "parallel_group": "ui_verification", "depends_on": ["implementation"], "candidate_skills": ["frontend-design", "verification-before-completion"], "agent_role": "Visual QA agent checks layout, responsive behavior, and polish."}
+        {"step": 4, "stage": "visual_qa", "execution": "parallel", "parallel_group": "ui_verification", "depends_on": ["implementation"], "candidate_skills": ["frontend-design"], "agent_role": "Visual QA agent checks layout, responsive behavior, and polish."}
       ]
     },
     {
@@ -243,13 +260,16 @@
       "label": "Change backend, database, API, or auth behavior",
       "domain": "backend_data",
       "mode": "default",
-      "triggers": ["api", "backend", "database", "postgres", "supabase", "auth", "migration", "后端", "数据库", "认证", "迁移"],
+      "required_any": ["api", "endpoint", "fastapi", "backend", "service", "database", "schema", "postgres", "supabase", "auth", "migration", "stripe", "stripe payments", "http client", "后端", "接口", "数据库", "模式", "认证", "迁移", "支付"],
+      "intent_any": ["implement", "build", "create", "design", "fix", "change", "update", "add", "migrate", "integrate", "optimize", "investigate", "diagnose", "实现", "构建", "创建", "设计", "修复", "修改", "更新", "新增", "迁移", "集成", "优化", "排查", "诊断"],
+      "exclude": ["poster", "visual", "card", "thumbnail", "cover", "海报", "视觉", "卡片", "封面"],
+      "triggers": ["api", "endpoint", "fastapi", "backend", "service", "database", "schema", "postgres", "supabase", "auth", "migration", "stripe", "stripe payments", "http client", "后端", "接口", "数据库", "模式", "认证", "迁移", "支付"],
       "stages": [
         {"step": 1, "stage": "context_scan", "execution": "serial", "candidate_skills": ["understand"], "agent_role": "Context agent maps service, schema, auth, and test boundaries."},
-        {"step": 2, "stage": "design", "execution": "serial", "depends_on": ["context_scan"], "candidate_skills": ["supabase"], "agent_role": "Design agent chooses API/data/auth approach and migration risk gates."},
-        {"step": 3, "stage": "implementation", "execution": "parallel", "parallel_group": "backend_build_and_tests", "depends_on": ["design"], "candidate_skills": ["systematic-implementation"], "agent_role": "Backend agent edits service, schema, or integration code."},
-        {"step": 3, "stage": "test_authoring", "execution": "parallel", "parallel_group": "backend_build_and_tests", "depends_on": ["design"], "candidate_skills": ["test-driven-development"], "agent_role": "Test agent updates unit/integration coverage for the changed behavior."},
-        {"step": 4, "stage": "handoff", "execution": "serial", "depends_on": ["implementation", "test_authoring"], "candidate_skills": ["verification-before-completion"], "agent_role": "Verification agent runs relevant checks and reports residual risks."}
+        {"step": 2, "stage": "design", "execution": "serial", "depends_on": ["context_scan"], "candidate_skills": ["supabase"], "candidate_conditions": {"supabase": ["supabase"]}, "agent_role": "Design agent chooses API/data/auth approach and migration risk gates; Supabase guidance is conditional."},
+        {"step": 3, "stage": "test_authoring", "execution": "serial", "depends_on": ["design"], "candidate_skills": ["test-driven-development"], "agent_role": "Test agent defines unit or integration coverage before the backend change."},
+        {"step": 4, "stage": "implementation", "execution": "serial", "depends_on": ["test_authoring"], "candidate_skills": ["systematic-implementation", "supabase"], "candidate_conditions": {"supabase": ["supabase"]}, "agent_role": "Backend agent edits service, schema, or integration code."},
+        {"step": 5, "stage": "handoff", "execution": "serial", "depends_on": ["implementation"], "candidate_skills": ["verification-before-completion"], "agent_role": "Verification agent runs relevant checks and reports residual risks."}
       ]
     },
     {
@@ -257,12 +277,14 @@
       "label": "Create, edit, evaluate, or package a skill",
       "domain": "skill_tooling",
       "mode": "deep",
+      "required_any": ["SKILL.md", "routing skill", "create a skill", "edit this skill", "evaluate skill", "package skill", "plugin", "路由", "插件", "评估skill", "打包skill", "安装器"],
+      "intent_any": ["create", "edit", "update", "fix", "improve", "evaluate", "package", "build", "创建", "修改", "更新", "修复", "改进", "评估", "打包", "构建"],
       "triggers": ["skill", "SKILL.md", "routing skill", "plugin", "evaluate skill", "package skill", "路由", "插件", "评估skill", "打包skill", "安装器"],
       "stages": [
         {"step": 1, "stage": "design", "execution": "serial", "candidate_skills": ["skill-creator"], "agent_role": "Skill-design agent defines trigger description, progressive disclosure, registry shape, and expected reports."},
-        {"step": 2, "stage": "implementation", "execution": "parallel", "parallel_group": "skill_edit_and_tests", "depends_on": ["design"], "candidate_skills": ["skill-creator", "systematic-implementation"], "agent_role": "Implementation agent edits SKILL.md, references, scripts, installer, or registry files."},
-        {"step": 2, "stage": "test_authoring", "execution": "parallel", "parallel_group": "skill_edit_and_tests", "depends_on": ["design"], "candidate_skills": ["skill-creator"], "agent_role": "Eval/test agent updates fixtures or smoke tests for routing behavior."},
-        {"step": 3, "stage": "handoff", "execution": "serial", "depends_on": ["implementation", "test_authoring"], "candidate_skills": ["verification-before-completion"], "agent_role": "Verification agent validates install, plan output, and process-report clarity."}
+        {"step": 2, "stage": "test_authoring", "execution": "serial", "depends_on": ["design"], "candidate_skills": ["skill-creator"], "agent_role": "Eval/test agent creates failing trigger, routing, or behavior tests for the current skill."},
+        {"step": 3, "stage": "implementation", "execution": "serial", "depends_on": ["test_authoring"], "candidate_skills": ["skill-creator", "systematic-implementation"], "agent_role": "Implementation agent edits SKILL.md, references, scripts, installer, or registry files."},
+        {"step": 4, "stage": "handoff", "execution": "serial", "depends_on": ["implementation"], "candidate_skills": ["verification-before-completion"], "agent_role": "Verification agent validates install, plan output, and process-report clarity."}
       ]
     },
     {
@@ -270,10 +292,12 @@
       "label": "Prepare commit, PR, CI, or deployment",
       "domain": "release",
       "mode": "default",
-      "triggers": ["commit", "pull request", "pr", "github", "ci", "deploy", "vercel", "release", "提交", "拉取请求", "部署", "发布"],
+      "required_any": ["commit", "pull request", "prepare pr", "open pr", "create pr", "pr", "github", "ci", "deploy", "vercel", "release", "ship", "ship live", "go live", "提交", "拉取请求", "部署", "发布", "上线"],
+      "exclude": ["release notes", "release note", "发布说明", "更新说明"],
+      "triggers": ["commit", "pull request", "prepare pr", "open pr", "create pr", "pr", "github", "ci", "deploy", "vercel", "release", "ship", "ship live", "go live", "提交", "拉取请求", "部署", "发布", "上线"],
       "stages": [
         {"step": 1, "stage": "handoff", "execution": "serial", "candidate_skills": ["verification-before-completion"], "agent_role": "Verification agent checks final local state before release work."},
-        {"step": 2, "stage": "release", "execution": "serial", "depends_on": ["handoff"], "candidate_skills": ["git-commit", "github-pr-creation", "deploy-to-vercel"], "agent_role": "Release agent prepares commit, PR, deployment, or release notes only when explicitly requested."}
+        {"step": 2, "stage": "release", "execution": "serial", "depends_on": ["handoff"], "candidate_skills": ["git-commit", "github-pr-creation", "deploy-to-vercel"], "candidate_conditions": {"git-commit": ["commit", "提交"], "github-pr-creation": ["pull request", "prepare pr", "open pr", "create pr", "pr", "创建pr", "开pr"], "deploy-to-vercel": ["deploy", "deployment", "vercel", "ship", "ship live", "go live", "部署", "上线"]}, "agent_role": "Release agent prepares only the explicitly requested commit, PR, or deployment action."}
       ]
     },
     {
@@ -281,12 +305,41 @@
       "label": "Implement or debug OpenAI API usage",
       "domain": "framework_platform",
       "mode": "default",
+      "required_any": ["openai", "chatgpt", "responses api", "assistants"],
+      "intent_any": ["implement", "build", "create", "fix", "debug", "update", "migrate", "integrate", "实现", "构建", "创建", "修复", "调试", "更新", "迁移", "集成"],
       "triggers": ["openai", "chatgpt", "responses api", "assistants", "models", "api"],
       "stages": [
         {"step": 1, "stage": "design", "execution": "serial", "candidate_skills": ["openai-docs"], "agent_role": "Docs agent verifies current official OpenAI API behavior before design decisions."},
-        {"step": 2, "stage": "implementation", "execution": "parallel", "parallel_group": "api_build_and_tests", "depends_on": ["design"], "candidate_skills": ["systematic-implementation"], "agent_role": "Implementation agent updates integration code."},
-        {"step": 2, "stage": "test_authoring", "execution": "parallel", "parallel_group": "api_build_and_tests", "depends_on": ["design"], "candidate_skills": ["test-driven-development"], "agent_role": "Test agent adds mocks, contract tests, or regression coverage."},
-        {"step": 3, "stage": "handoff", "execution": "serial", "depends_on": ["implementation", "test_authoring"], "candidate_skills": ["verification-before-completion"], "agent_role": "Verification agent runs checks and reports API/version assumptions."}
+        {"step": 2, "stage": "test_authoring", "execution": "serial", "depends_on": ["design"], "candidate_skills": ["test-driven-development"], "agent_role": "Test agent adds mocks, contract tests, or regression coverage before implementation."},
+        {"step": 3, "stage": "implementation", "execution": "serial", "depends_on": ["test_authoring"], "candidate_skills": ["systematic-implementation"], "agent_role": "Implementation agent updates integration code."},
+        {"step": 4, "stage": "handoff", "execution": "serial", "depends_on": ["implementation"], "candidate_skills": ["verification-before-completion"], "agent_role": "Verification agent runs checks and reports API/version assumptions."}
+      ]
+    },
+    {
+      "id": "test_quality",
+      "label": "Add, repair, or improve software tests",
+      "domain": "testing",
+      "mode": "default",
+      "required_any": ["unit test", "integration test", "regression test", "test suite", "pytest", "jest", "单元测试", "集成测试", "回归测试", "测试"],
+      "intent_any": ["write", "add", "fix", "repair", "improve", "run", "failing", "补", "写", "新增", "修复", "改进", "运行", "失败"],
+      "triggers": ["unit test", "integration test", "regression test", "test suite", "pytest", "jest", "单元测试", "集成测试", "回归测试", "测试"],
+      "stages": [
+        {"step": 1, "stage": "context_scan", "execution": "serial", "candidate_skills": ["understand", "codegraph"], "agent_role": "Context agent inspects the behavior, existing tests, and project test conventions."},
+        {"step": 2, "stage": "test_authoring", "execution": "serial", "depends_on": ["context_scan"], "candidate_skills": ["test-driven-development"], "agent_role": "Test agent writes or repairs the focused tests."},
+        {"step": 3, "stage": "handoff", "execution": "serial", "depends_on": ["test_authoring"], "candidate_skills": ["verification-before-completion"], "agent_role": "Verification agent runs the relevant suite and reports evidence."}
+      ]
+    },
+    {
+      "id": "code_review",
+      "label": "Review code or a pull request for correctness and risk",
+      "domain": "review",
+      "mode": "default",
+      "required_any": ["code review", "review code", "review this code", "review the code", "code changes", "review this pull request", "review this pr", "security review", "review the diff", "bugs", "代码审查", "审查代码", "审查这个pr", "审核代码"],
+      "triggers": ["code review", "review code", "review this code", "review the code", "code changes", "pull request", "review this pr", "security review", "review the diff", "bugs", "代码审查", "审查代码", "审查", "审核"],
+      "stages": [
+        {"step": 1, "stage": "context_scan", "execution": "serial", "candidate_skills": ["github-pr-review", "understand"], "agent_role": "Review agent gathers the diff, requirements, and affected call paths."},
+        {"step": 2, "stage": "security_review", "execution": "serial", "depends_on": ["context_scan"], "candidate_skills": ["github-pr-review"], "agent_role": "Review agent checks correctness, regressions, security, and performance risks requested by the user."},
+        {"step": 3, "stage": "handoff", "execution": "serial", "depends_on": ["security_review"], "candidate_skills": ["verification-before-completion"], "agent_role": "Verification agent returns prioritized findings with evidence."}
       ]
     }
   ]

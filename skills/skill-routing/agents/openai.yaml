@@ -1,0 +1,6 @@
+interface:
+  display_name: "Skill Routing"
+  short_description: "Match installed skills and persist personal route choices"
+  default_prompt: "Initialize or use my personal skill routing catalog for this task."
+policy:
+  allow_implicit_invocation: true

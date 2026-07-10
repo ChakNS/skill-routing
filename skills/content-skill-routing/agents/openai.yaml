@@ -1,0 +1,5 @@
+interface:
+  display_name: "Content Route Pack"
+  short_description: "Optional staged content workflow templates"
+policy:
+  allow_implicit_invocation: false

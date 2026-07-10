@@ -1,0 +1,5 @@
+interface:
+  display_name: "Coding Route Pack"
+  short_description: "Optional staged software workflow templates"
+policy:
+  allow_implicit_invocation: false

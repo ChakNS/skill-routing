@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Smoke test
+        run: python scripts/smoke_test.py
+      - name: Default routing eval
+        run: python scripts/evaluate_routes.py
+      - name: Adversarial routing eval
+        run: python scripts/evaluate_routes.py --evals evals/adversarial-routing-evals.json
+      - name: Validate bundled route packs
+        run: python skills/skill-routing/scripts/router_modules.py validate
+      - name: Compile Python
+        run: python -m compileall -q scripts skills tests
+      - name: Bash syntax
+        if: runner.os != 'Windows'
+        run: bash -n scripts/install.sh

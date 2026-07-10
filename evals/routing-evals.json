@@ -1,54 +1,272 @@
 {
-  "version": 1,
-  "description": "Routing regression cases for the workflow routing matrix. These evals check whether a prompt maps to the expected module, pipeline, stages, and parallel groups.",
+  "version": 2,
+  "description": "Routing regression cases covering positive routes, hard negatives, abstention, direct local-skill matching, cross-domain composition, conditional candidates, and remembered fallback decisions.",
   "cases": [
     {
       "id": "content_xhs_package_zh",
+      "slices": ["content", "zh", "pipeline"],
       "prompt": "生成一套小红书图文笔记，包含标题、正文、封面方向和发布清单",
-      "expected_module": "content",
-      "expected_pipeline": "xhs_note_package",
-      "required_stages": ["intake", "title_hook", "visual_direction", "draft", "asset_generation", "handoff"],
-      "required_parallel_groups": ["angle_and_visual_direction", "copy_and_assets"]
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "expected_pipelines": {"content": ["xhs_note_package"]},
+      "required_stages": ["intake", "title_hook", "visual_direction", "draft", "asset_generation", "handoff"]
     },
     {
       "id": "content_researched_article",
+      "slices": ["content", "en", "pipeline", "evidence"],
       "prompt": "Research competitor examples and write an evidence-backed newsletter with sources.",
-      "expected_module": "content",
-      "expected_pipeline": "researched_article",
-      "required_stages": ["research", "topic", "draft", "handoff"],
-      "required_parallel_groups": ["evidence_collection"]
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "expected_pipelines": {"content": ["researched_article"]},
+      "required_stages": ["research", "topic", "draft", "handoff"]
     },
     {
       "id": "content_system_zh",
+      "slices": ["content", "zh", "pipeline"],
       "prompt": "帮我设计一个内容系统，包括选题库、发布节奏和复盘指标",
-      "expected_module": "content",
-      "expected_pipeline": "content_system",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "expected_pipelines": {"content": ["content_system"]},
       "required_stages": ["strategy", "systemization", "measurement"],
       "required_parallel_groups": ["system_inputs"]
     },
     {
       "id": "coding_skill_development_zh",
+      "slices": ["coding", "zh", "skill_tooling"],
       "prompt": "改进这个skill安装器并补测试",
-      "expected_module": "coding",
-      "expected_pipeline": "skill_development",
-      "required_stages": ["design", "implementation", "test_authoring", "handoff"],
-      "required_parallel_groups": ["skill_edit_and_tests"]
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["skill_development"]},
+      "required_stages": ["design", "test_authoring", "implementation", "handoff"]
     },
     {
       "id": "coding_frontend_ui",
+      "slices": ["coding", "en", "frontend"],
       "prompt": "Redesign this React settings page and verify the mobile layout in browser.",
-      "expected_module": "coding",
-      "expected_pipeline": "frontend_ui_change",
-      "required_stages": ["context_scan", "design", "test_authoring", "implementation", "browser_verification", "visual_qa"],
-      "required_parallel_groups": ["design_and_acceptance", "ui_verification"]
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["frontend_ui_change"]},
+      "required_stages": ["context_scan", "design", "test_authoring", "implementation", "browser_verification", "visual_qa"]
     },
     {
       "id": "coding_bug_fix",
+      "slices": ["coding", "en", "debugging"],
       "prompt": "The login test is failing after the auth refactor. Find the root cause and fix it.",
-      "expected_module": "coding",
-      "expected_pipeline": "bug_fix",
-      "required_stages": ["debugging", "implementation", "test_authoring", "handoff"],
-      "required_parallel_groups": ["fix_and_regression"]
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["bug_fix"]},
+      "required_stages": ["debugging", "test_authoring", "implementation", "handoff"]
+    },
+    {
+      "id": "http_post_endpoint",
+      "slices": ["coding", "hard_negative", "word_sense"],
+      "prompt": "Add a POST endpoint to the API and include unit tests.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["backend_data_change", "feature_from_idea", "test_quality"]},
+      "forbidden_modules": ["content"],
+      "forbidden_pipelines": ["social_post_from_notes"]
+    },
+    {
+      "id": "full_page_screenshot",
+      "slices": ["content", "hard_negative", "visual"],
+      "prompt": "Create a shareable full-page screenshot of this prototype.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "expected_pipelines": {"content": ["visual_asset_package"]},
+      "required_stages": ["visual_direction", "asset_generation", "handoff"]
+    },
+    {
+      "id": "capital_substring_abstain",
+      "slices": ["hard_negative", "abstain", "word_boundary"],
+      "prompt": "What is the capital of France?",
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_modules": ["coding", "content"]
+    },
+    {
+      "id": "negated_deploy",
+      "slices": ["hard_negative", "abstain", "negation"],
+      "prompt": "Do not deploy anything; only explain the release checklist.",
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_pipelines": ["release_pr_deploy"]
+    },
+    {
+      "id": "direct_local_humanizer",
+      "slices": ["direct", "personalization", "zh", "cross_language"],
+      "prompt": "请把这篇中文 AI 技术文章改得更自然，去掉机器味但保留术语准确性",
+      "inventory": [
+        {
+          "name": "humanizer-tech-zh",
+          "description": "Use when Chinese technical or AI writing should sound natural and less machine-generated while preserving precise terminology."
+        }
+      ],
+      "expected_route_kind": "direct",
+      "required_selected_skills": ["humanizer-tech-zh"],
+      "min_confidence": 0.2
+    },
+    {
+      "id": "direct_newsletter_parser_tests",
+      "slices": ["direct", "personalization", "hard_negative", "coding"],
+      "prompt": "Write unit tests for a newsletter parser and fix its failing edge cases",
+      "inventory": [
+        {
+          "name": "test-driven-development",
+          "description": "Use when implementing unit tests, regression tests, parsers, and testable software behavior."
+        }
+      ],
+      "expected_route_kinds": ["direct", "pipeline"],
+      "expected_modules": ["coding"],
+      "required_selected_skills": ["test-driven-development"],
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "composed_content_web_app",
+      "slices": ["multi_intent", "coding", "content", "en"],
+      "prompt": "Build a React content calendar web app and write the launch post",
+      "expected_route_kind": "composed_pipeline",
+      "expected_modules": ["coding", "content"],
+      "expected_pipelines": {
+        "coding": ["frontend_ui_change", "feature_from_idea"],
+        "content": ["content_system", "social_post_from_notes"]
+      }
+    },
+    {
+      "id": "router_management_stays_main",
+      "slices": ["management", "hard_negative", "zh"],
+      "prompt": "重新扫描本地 skills，检查路由冲突并更新我的 skill routing",
+      "expected_route_kind": "management",
+      "expected_matched": true,
+      "forbidden_modules": ["coding", "content"]
+    },
+    {
+      "id": "database_index_backend",
+      "slices": ["coding", "backend", "recall"],
+      "prompt": "Create a database index for the slow account lookup and add a migration test.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["backend_data_change", "test_quality"]},
+      "forbidden_modules": ["content"]
+    },
+    {
+      "id": "openai_api_current_docs",
+      "slices": ["coding", "framework", "en"],
+      "prompt": "Update this OpenAI Responses API integration and verify the current request schema.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["openai_api_work"]},
+      "required_stages": ["design", "test_authoring", "implementation", "handoff"]
+    },
+    {
+      "id": "social_post_includes_hook",
+      "slices": ["content", "en", "fixture_parity"],
+      "prompt": "Turn these messy notes into a LinkedIn post and give me three hooks.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "expected_pipelines": {"content": ["social_post_from_notes"]},
+      "required_stages": ["title_hook", "draft", "handoff"]
+    },
+    {
+      "id": "commit_only_selects_commit_skill",
+      "slices": ["coding", "conditional_candidate", "release"],
+      "prompt": "Commit the current verified changes. Do not open a PR or deploy.",
+      "inventory": [
+        {"name": "git-commit", "description": "Use when the user explicitly asks to create a git commit."},
+        {"name": "github-pr-creation", "description": "Use when the user explicitly asks to open a GitHub pull request."},
+        {"name": "deploy-to-vercel", "description": "Use when the user explicitly asks to deploy to Vercel."}
+      ],
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["release_pr_deploy"]},
+      "required_selected_skills": ["git-commit"],
+      "forbidden_selected_skills": ["github-pr-creation", "deploy-to-vercel"]
+    },
+    {
+      "id": "missing_skill_remembered_fallback",
+      "slices": ["content", "missing_dependency", "adaptation"],
+      "prompt": "生成一套小红书图文笔记，包含标题、正文和封面",
+      "initialize": true,
+      "resolutions": [
+        {
+          "module": "content",
+          "stage": "title_hook",
+          "skill": "hook-generator",
+          "action": "fallback"
+        }
+      ],
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "expected_pipelines": {"content": ["xhs_note_package"]},
+      "expected_stage_status": {"content:title_hook": "agent_fallback"}
+    },
+    {
+      "id": "missing_skill_remembered_replacement",
+      "slices": ["content", "missing_dependency", "adaptation", "personalization"],
+      "prompt": "生成一套小红书图文笔记，包含标题、正文和封面",
+      "inventory": [
+        {"name": "my-title-tool", "description": "Use for a private editorial workflow."}
+      ],
+      "resolutions": [
+        {
+          "module": "content",
+          "stage": "title_hook",
+          "skill": "hook-generator",
+          "action": "replace",
+          "replacement": "my-title-tool"
+        }
+      ],
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["content"],
+      "required_selected_skills": ["my-title-tool"],
+      "expected_stage_status": {"content:title_hook": "selected"}
+    },
+    {
+      "id": "generic_backend_does_not_force_supabase",
+      "slices": ["coding", "backend", "conditional_candidate"],
+      "prompt": "Add an authentication endpoint to our existing FastAPI service.",
+      "inventory": [
+        {"name": "supabase", "description": "Use for Supabase auth, storage, Postgres policies, and migrations."}
+      ],
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["backend_data_change", "feature_from_idea"]},
+      "forbidden_selected_skills": ["supabase"]
+    },
+    {
+      "id": "supabase_backend_selects_supabase",
+      "slices": ["coding", "backend", "conditional_candidate", "personalization"],
+      "prompt": "Add a Supabase RLS policy and update the API tests.",
+      "inventory": [
+        {"name": "supabase", "description": "Use for Supabase auth, storage, Postgres RLS policies, and migrations."}
+      ],
+      "expected_route_kinds": ["pipeline", "direct"],
+      "expected_modules": ["coding"],
+      "required_selected_skills": ["supabase"]
+    },
+    {
+      "id": "pull_request_review",
+      "slices": ["coding", "review", "security", "en"],
+      "prompt": "Review this pull request for security problems and performance regressions.",
+      "expected_route_kind": "pipeline",
+      "expected_modules": ["coding"],
+      "expected_pipelines": {"coding": ["code_review"]},
+      "required_stages": ["context_scan", "security_review", "handoff"]
+    },
+    {
+      "id": "generic_skill_issue_abstains",
+      "slices": ["hard_negative", "abstain", "word_sense"],
+      "prompt": "That was a skill issue, can you explain the phrase?",
+      "expected_route_kind": "abstain",
+      "expected_matched": false,
+      "forbidden_pipelines": ["skill_development"]
+    },
+    {
+      "id": "technical_research_not_content",
+      "slices": ["hard_negative", "research", "coding"],
+      "prompt": "Research a Python package security vulnerability and explain whether our service is affected.",
+      "forbidden_modules": ["content"],
+      "forbidden_pipelines": ["researched_article"]
     }
   ]
 }

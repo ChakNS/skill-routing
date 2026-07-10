@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "skill": "skill-routing",
+  "description": "Static trigger expectations for host-level skill activation reviews. These cases are not executed by evaluate_routes.py; they document when the main skill should be considered before downstream skills.",
+  "cases": [
+    {
+      "id": "trigger_init_many_skills",
+      "prompt": "I installed 200 skills; initialize a local routing profile and organize them.",
+      "should_trigger": true,
+      "reason": "Direct router initialization and local skill organization request."
+    },
+    {
+      "id": "trigger_choose_best_local_skill",
+      "prompt": "Which installed skill should handle this task?",
+      "should_trigger": true,
+      "reason": "User asks for routing among installed skills."
+    },
+    {
+      "id": "trigger_missing_skill_decision",
+      "prompt": "The route pack recommends a missing visual skill; help me replace or disable it.",
+      "should_trigger": true,
+      "reason": "Missing-candidate resolution belongs to the routing control plane."
+    },
+    {
+      "id": "trigger_duplicate_skill_conflict",
+      "prompt": "Two local skills have the same name; choose the trusted path.",
+      "should_trigger": true,
+      "reason": "Duplicate-name conflict resolution is a router management action."
+    },
+    {
+      "id": "trigger_refresh_catalog",
+      "prompt": "Refresh the routing catalog after I installed a new skill.",
+      "should_trigger": true,
+      "reason": "Refresh and catalog update request."
+    },
+    {
+      "id": "trigger_bind_stage",
+      "prompt": "Always use test-driven-development for coding test_authoring stages.",
+      "should_trigger": true,
+      "reason": "Manual stage binding request."
+    },
+    {
+      "id": "trigger_validate_route_pack",
+      "prompt": "Validate this custom route pack before I publish it.",
+      "should_trigger": true,
+      "reason": "Route-pack validation request."
+    },
+    {
+      "id": "trigger_content_coding_composition",
+      "prompt": "Implement a webhook and write the launch post; route this through the right skills.",
+      "should_trigger": true,
+      "reason": "Explicit request for multi-skill routing/composition."
+    },
+    {
+      "id": "do_not_trigger_named_skill_direct",
+      "prompt": "Use $openai-docs to check the current Responses API.",
+      "should_trigger": false,
+      "reason": "User explicitly selected a downstream skill."
+    },
+    {
+      "id": "do_not_trigger_general_question",
+      "prompt": "What is an HTTP POST request?",
+      "should_trigger": false,
+      "reason": "General explanation without routing need."
+    },
+    {
+      "id": "do_not_trigger_simple_code_fix",
+      "prompt": "Fix this typo in app.py.",
+      "should_trigger": false,
+      "reason": "Small direct coding task can be handled by native workflow unless user asks for routing."
+    },
+    {
+      "id": "do_not_trigger_write_article_only",
+      "prompt": "Write a sourced article about WASM runtimes.",
+      "should_trigger": false,
+      "reason": "Content task should trigger a content skill or route pack only if main router is explicitly invoked."
+    },
+    {
+      "id": "do_not_trigger_http_router_code",
+      "prompt": "Implement an HTTP router middleware.",
+      "should_trigger": false,
+      "reason": "Router is a software term here, not skill-routing management."
+    },
+    {
+      "id": "do_not_trigger_deploy_only",
+      "prompt": "Deploy this site to Vercel.",
+      "should_trigger": false,
+      "reason": "Deployment skill should handle it directly unless routing is requested."
+    },
+    {
+      "id": "do_not_trigger_ui_screenshot",
+      "prompt": "Take a screenshot of this page.",
+      "should_trigger": false,
+      "reason": "Visual/browser skill should handle a direct screenshot request."
+    },
+    {
+      "id": "do_not_trigger_recipe_edit",
+      "prompt": "Add salt to this recipe.",
+      "should_trigger": false,
+      "reason": "No installed-skill routing signal."
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ChakNS/skill-routing/schemas/route-pack.schema.json",
+  "title": "Skill Routing Route Pack",
+  "type": "object",
+  "required": ["version", "router", "layers", "stages", "skills", "pipelines"],
+  "properties": {
+    "version": {"type": "integer", "minimum": 3},
+    "router": {"type": "string"},
+    "layers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "purpose"],
+        "properties": {
+          "id": {"type": "string"},
+          "label": {"type": "string"},
+          "purpose": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "layer", "purpose"],
+        "properties": {
+          "id": {"type": "string"},
+          "layer": {"type": "string"},
+          "purpose": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "priority", "category", "layer", "parallel_safe", "stages", "use_when", "install_hint"],
+        "properties": {
+          "name": {"type": "string"},
+          "priority": {"enum": ["low", "normal", "high"]},
+          "category": {"type": "string"},
+          "layer": {"type": "string"},
+          "parallel_safe": {"type": "boolean"},
+          "stages": {"type": "array", "items": {"type": "string"}, "minItems": 1, "uniqueItems": true},
+          "use_when": {"type": "string"},
+          "install_hint": {"type": "string"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "pipelines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "domain", "mode", "triggers", "stages"],
+        "properties": {
+          "id": {"type": "string"},
+          "label": {"type": "string"},
+          "domain": {"type": "string"},
+          "mode": {"enum": ["light", "default", "deep"]},
+          "required_any": {"type": "array", "items": {"type": "string"}},
+          "intent_any": {"type": "array", "items": {"type": "string"}},
+          "exclude": {"type": "array", "items": {"type": "string"}},
+          "triggers": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+          "stages": {
+            "type": "array",
+            "items": {"$ref": "#/$defs/pipelineStage"},
+            "minItems": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "pipelineStage": {
+      "type": "object",
+      "required": ["step", "stage", "execution", "candidate_skills", "agent_role"],
+      "properties": {
+        "step": {"type": "integer", "minimum": 1},
+        "stage": {"type": "string"},
+        "execution": {"enum": ["serial", "parallel"]},
+        "parallel_group": {"type": "string"},
+        "depends_on": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "candidate_skills": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "candidate_conditions": {
+          "type": "object",
+          "additionalProperties": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+        },
+        "max_skills": {"type": "integer", "minimum": 1},
+        "agent_role": {"type": "string"}
+      },
+      "additionalProperties": true
+    }
+  }
+}

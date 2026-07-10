@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ChakNS/skill-routing/schemas/profile.schema.json",
+  "title": "Skill Routing Personal Profile",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "router_version",
+    "scan_roots",
+    "catalog",
+    "conflicts",
+    "bindings",
+    "resolutions",
+    "preferences",
+    "feedback",
+    "history"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "router_version": {"type": "string"},
+    "created_at": {"type": "string"},
+    "updated_at": {"type": "string"},
+    "scan_roots": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "catalog": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/skill"}
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/conflict"}
+    },
+    "scan_warnings": {"type": "array", "items": {"type": "string"}},
+    "bindings": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/binding"}
+    },
+    "resolutions": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/resolution"}
+    },
+    "preferences": {
+      "type": "object",
+      "properties": {
+        "disabled_skills": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "preferred_paths": {
+          "type": "object",
+          "additionalProperties": {"type": "string"}
+        }
+      },
+      "additionalProperties": true
+    },
+    "feedback": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["success", "failure"],
+        "properties": {
+          "success": {"type": "integer", "minimum": 0},
+          "failure": {"type": "integer", "minimum": 0}
+        },
+        "additionalProperties": false
+      }
+    },
+    "history": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "required": ["at", "skill", "outcome", "prompt_hash"],
+        "properties": {
+          "at": {"type": "string"},
+          "skill": {"type": "string"},
+          "outcome": {"enum": ["success", "failure"]},
+          "module": {"type": "string"},
+          "stage": {"type": "string"},
+          "prompt_hash": {"type": "string", "maxLength": 16}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "skill": {
+      "type": "object",
+      "required": ["name", "description", "path", "skill_file", "source_root", "source_rank", "enabled", "fingerprint"],
+      "properties": {
+        "name": {"type": "string"},
+        "description": {"type": "string"},
+        "when_to_use": {"type": "string"},
+        "compatibility": {"type": "string"},
+        "path": {"type": "string"},
+        "skill_file": {"type": "string"},
+        "source_root": {"type": "string"},
+        "source_rank": {"type": "integer", "minimum": 0},
+        "enabled": {"type": "boolean"},
+        "fingerprint": {"type": "string"},
+        "variant_count": {"type": "integer", "minimum": 1},
+        "conflict_unresolved": {"type": "boolean"},
+        "warnings": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "conflict": {
+      "type": "object",
+      "required": ["name", "selected_path", "paths", "resolved", "reason"],
+      "properties": {
+        "name": {"type": "string"},
+        "selected_path": {"type": "string"},
+        "paths": {"type": "array", "minItems": 2, "items": {"type": "string"}},
+        "resolved": {"type": "boolean"},
+        "reason": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "binding": {
+      "type": "object",
+      "required": ["manual", "automatic"],
+      "properties": {
+        "manual": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "automatic": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "score"],
+            "properties": {
+              "name": {"type": "string"},
+              "score": {"type": "number"}
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "resolution": {
+      "type": "object",
+      "required": ["action", "replacement", "updated_at"],
+      "properties": {
+        "action": {"enum": ["replace", "fallback", "disable"]},
+        "replacement": {"type": ["string", "null"]},
+        "updated_at": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

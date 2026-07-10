@@ -3,10 +3,12 @@ set -euo pipefail
 
 REPO="${ROUTING_SKILLS_REPO:-ChakNS/skill-routing}"
 REF="${ROUTING_SKILLS_REF:-main}"
-TARGET="${ROUTING_SKILLS_TARGET:-$HOME/.codex/skills}"
+TARGET="${ROUTING_SKILLS_TARGET:-$HOME/.agents/skills}"
 MODULES="${ROUTING_SKILLS_MODULES:-all}"
 SOURCE_DIR="${ROUTING_SKILLS_SOURCE_DIR:-}"
 NO_DEFAULT_SCAN_ROOTS="${ROUTING_SKILLS_NO_DEFAULT_SCAN_ROOTS:-0}"
+EXPECTED_SHA256="${ROUTING_SKILLS_SHA256:-}"
+REQUIRE_CHECKSUM="${ROUTING_SKILLS_REQUIRE_CHECKSUM:-0}"
 
 if ! command -v python3 >/dev/null 2>&1; then
   echo "python3 is required to install skill-routing." >&2
@@ -34,6 +36,29 @@ else
     wget -qO "$ARCHIVE" "$URL"
   else
     echo "curl or wget is required to download skill-routing." >&2
+    exit 1
+  fi
+
+  if [ -n "$EXPECTED_SHA256" ]; then
+    if command -v shasum >/dev/null 2>&1; then
+      ACTUAL_SHA256="$(shasum -a 256 "$ARCHIVE" | awk '{print $1}')"
+    elif command -v sha256sum >/dev/null 2>&1; then
+      ACTUAL_SHA256="$(sha256sum "$ARCHIVE" | awk '{print $1}')"
+    else
+      echo "shasum or sha256sum is required to verify ROUTING_SKILLS_SHA256." >&2
+      exit 1
+    fi
+    if [ "$ACTUAL_SHA256" != "$EXPECTED_SHA256" ]; then
+      echo "skill-routing archive checksum mismatch." >&2
+      exit 1
+    fi
+  elif [ "$REQUIRE_CHECKSUM" = "1" ]; then
+    echo "ROUTING_SKILLS_SHA256 is required when ROUTING_SKILLS_REQUIRE_CHECKSUM=1." >&2
+    exit 1
+  fi
+
+  if tar -tzf "$ARCHIVE" | awk '/(^\/|(^|\/)\.\.(\/|$))/{bad=1} END{exit bad ? 0 : 1}'; then
+    echo "Refusing archive with unsafe paths." >&2
     exit 1
   fi
 

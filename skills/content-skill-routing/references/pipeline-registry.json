@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "router": "content-skill-routing",
   "layers": [
     {"id": "intake", "label": "Intake", "purpose": "Clarify platform, audience, deliverable, source material, and acceptance gates."},
@@ -128,6 +128,16 @@
       "install_hint": "Recommended for Chinese final polish."
     },
     {
+      "name": "graphic-designer",
+      "priority": "normal",
+      "category": "visual_direction",
+      "layer": "packaging",
+      "parallel_safe": true,
+      "stages": ["visual_direction", "asset_generation"],
+      "use_when": "The user needs platform-neutral visual direction or social graphics rather than Xiaohongshu-specific art direction.",
+      "install_hint": "Recommended for general social graphics and visual direction."
+    },
+    {
       "name": "analytics-dashboard",
       "priority": "normal",
       "category": "measurement",
@@ -154,12 +164,14 @@
       "label": "Turn notes into a platform-ready social post",
       "domain": "creation",
       "mode": "default",
-      "triggers": ["post", "linkedin", "tweet", "thread", "social", "from notes", "rewrite", "帖子", "社媒", "改写", "笔记改写"],
+      "required_any": ["linkedin", "twitter", "tweet", "thread", "twitter post", "twitter audience", "write a post", "hook to this post", "social post", "from notes", "announcement", "announcement email", "launch post", "launch copy", "customer email", "帖子", "社媒", "笔记改写", "公告", "发布文案"],
+      "triggers": ["linkedin", "twitter", "tweet", "thread", "twitter post", "twitter audience", "write a post", "hook to this post", "social post", "from notes", "announcement", "announcement email", "launch post", "launch copy", "customer email", "帖子", "社媒", "笔记改写", "公告", "发布文案"],
       "stages": [
         {"step": 1, "stage": "intake", "execution": "serial", "candidate_skills": [], "agent_role": "Router clarifies platform, audience, source notes, and final format."},
-        {"step": 2, "stage": "draft", "execution": "serial", "depends_on": ["intake"], "candidate_skills": ["post-writer"], "agent_role": "Writing agent turns source notes into the main post."},
-        {"step": 3, "stage": "voice_polish", "execution": "serial", "depends_on": ["draft"], "candidate_skills": ["post-formatter", "humanizer-zh"], "agent_role": "Editing agent formats and polishes the draft for the target platform."},
-        {"step": 4, "stage": "handoff", "execution": "serial", "depends_on": ["voice_polish"], "candidate_skills": ["post-formatter"], "agent_role": "Handoff agent prepares final copy, metadata, and manual publish checklist."}
+        {"step": 2, "stage": "title_hook", "execution": "serial", "depends_on": ["intake"], "candidate_skills": ["hook-generator"], "agent_role": "Hook agent explores openings when a social post needs a strong first screen."},
+        {"step": 3, "stage": "draft", "execution": "serial", "depends_on": ["title_hook"], "candidate_skills": ["post-writer"], "agent_role": "Writing agent turns source notes and the selected hook into the main post."},
+        {"step": 4, "stage": "voice_polish", "execution": "serial", "depends_on": ["draft"], "candidate_skills": ["post-formatter", "humanizer-zh"], "candidate_conditions": {"humanizer-zh": ["中文", "Chinese", "AI味", "机器味"]}, "agent_role": "Editing agent formats and polishes the draft for the target platform."},
+        {"step": 5, "stage": "handoff", "execution": "serial", "depends_on": ["voice_polish"], "candidate_skills": ["post-formatter"], "agent_role": "Handoff agent prepares final copy, metadata, and manual publish checklist."}
       ]
     },
     {
@@ -167,15 +179,16 @@
       "label": "Prepare a Xiaohongshu/Rednote note package",
       "domain": "creation_packaging",
       "mode": "default",
+      "required_any": ["xhs", "xiaohongshu", "rednote", "little red book", "小红书", "红书"],
       "triggers": ["xhs", "xiaohongshu", "rednote", "little red book", "cover", "note", "小红书", "红书", "图文", "笔记", "封面", "发布清单"],
       "stages": [
         {"step": 1, "stage": "intake", "execution": "serial", "candidate_skills": [], "agent_role": "Router confirms topic, audience, note type, source material, and asset requirements."},
-        {"step": 2, "stage": "title_hook", "execution": "parallel", "parallel_group": "angle_and_visual_direction", "depends_on": ["intake"], "candidate_skills": ["hook-generator"], "agent_role": "Hook agent explores title and first-screen variants."},
-        {"step": 2, "stage": "visual_direction", "execution": "parallel", "parallel_group": "angle_and_visual_direction", "depends_on": ["intake"], "candidate_skills": ["xhs-visual-director"], "agent_role": "Visual agent defines cover/card direction in parallel with hook exploration."},
-        {"step": 3, "stage": "draft", "execution": "parallel", "parallel_group": "copy_and_assets", "depends_on": ["title_hook"], "candidate_skills": ["post-writer"], "agent_role": "Writing agent drafts the note body from the selected angle."},
-        {"step": 3, "stage": "asset_generation", "execution": "parallel", "parallel_group": "copy_and_assets", "depends_on": ["visual_direction"], "candidate_skills": ["guizang-social-card-skill", "imagegen"], "agent_role": "Asset agent generates or renders the required cover/card assets."},
-        {"step": 4, "stage": "voice_polish", "execution": "serial", "depends_on": ["draft"], "candidate_skills": ["post-formatter", "humanizer-zh"], "agent_role": "Editing agent tightens the body copy for Xiaohongshu reading behavior."},
-        {"step": 5, "stage": "handoff", "execution": "serial", "depends_on": ["voice_polish", "asset_generation"], "candidate_skills": ["post-formatter"], "agent_role": "Handoff agent assembles title, body, tags, asset list, and manual publish checklist."}
+        {"step": 2, "stage": "title_hook", "execution": "serial", "depends_on": ["intake"], "candidate_skills": ["hook-generator"], "agent_role": "Hook agent explores title and first-screen variants."},
+        {"step": 3, "stage": "visual_direction", "execution": "serial", "depends_on": ["intake"], "candidate_skills": ["xhs-visual-director"], "agent_role": "Visual agent defines the cover or card direction."},
+        {"step": 4, "stage": "draft", "execution": "serial", "depends_on": ["title_hook"], "candidate_skills": ["post-writer"], "agent_role": "Writing agent drafts the note body from the selected angle."},
+        {"step": 5, "stage": "asset_generation", "execution": "serial", "depends_on": ["visual_direction"], "candidate_skills": ["guizang-social-card-skill", "imagegen"], "agent_role": "Asset agent selects one renderer for the required cover or card assets."},
+        {"step": 6, "stage": "voice_polish", "execution": "serial", "depends_on": ["draft"], "candidate_skills": ["post-formatter", "humanizer-zh"], "candidate_conditions": {"humanizer-zh": ["中文", "Chinese", "AI味", "机器味", "小红书"]}, "agent_role": "Editing agent tightens the body copy for Xiaohongshu reading behavior."},
+        {"step": 7, "stage": "handoff", "execution": "serial", "depends_on": ["voice_polish", "asset_generation"], "candidate_skills": ["post-formatter"], "agent_role": "Handoff agent assembles title, body, tags, asset list, and manual publish checklist."}
       ]
     },
     {
@@ -183,9 +196,11 @@
       "label": "Research and write an evidence-backed article or newsletter",
       "domain": "research_creation",
       "mode": "deep",
+      "required_any": ["newsletter", "article", "evidence-backed article", "research report", "文章", "通讯", "研究报告", "调研文章"],
+      "intent_any": ["write", "draft", "edit", "add", "research", "gather", "source", "create", "prepare", "写", "撰写", "编辑", "添加", "调研", "研究", "收集", "生成"],
       "triggers": ["research", "newsletter", "article", "sources", "evidence", "competitor", "调研", "研究", "文章", "通讯", "证据", "竞品"],
       "stages": [
-        {"step": 1, "stage": "research", "execution": "parallel", "parallel_group": "evidence_collection", "candidate_skills": ["anysearch", "niche-research"], "agent_role": "Research agents gather sources, competitor examples, and demand signals without inventing facts."},
+        {"step": 1, "stage": "research", "execution": "serial", "candidate_skills": ["anysearch", "niche-research"], "agent_role": "Research agent selects the best available evidence workflow and gathers sources without inventing facts."},
         {"step": 2, "stage": "topic", "execution": "serial", "depends_on": ["research"], "candidate_skills": ["niche-research"], "agent_role": "Strategy agent selects the topic and article angle from evidence."},
         {"step": 3, "stage": "draft", "execution": "serial", "depends_on": ["topic"], "candidate_skills": ["post-writer"], "agent_role": "Writing agent drafts the article or newsletter."},
         {"step": 4, "stage": "voice_polish", "execution": "serial", "depends_on": ["draft"], "candidate_skills": ["post-formatter"], "agent_role": "Editing agent formats and polishes the piece."},
@@ -197,11 +212,13 @@
       "label": "Create or prepare visual assets for content",
       "domain": "packaging",
       "mode": "default",
-      "triggers": ["card", "carousel", "thumbnail", "image", "visual", "screenshot", "cover", "卡片", "轮播", "缩略图", "图片", "视觉", "截图", "封面"],
+      "required_any": ["card", "carousel", "thumbnail", "image", "visual", "screenshot", "page screenshot", "screenshot page", "cover", "poster", "卡片", "轮播", "缩略图", "图片", "视觉", "截图", "页面截图", "封面", "海报"],
+      "intent_any": ["create", "generate", "make", "design", "prepare", "capture", "take", "screenshot", "render", "生成", "创建", "制作", "设计", "准备", "截取", "截屏", "渲染"],
+      "triggers": ["card", "carousel", "thumbnail", "image", "visual", "screenshot", "page screenshot", "screenshot page", "cover", "poster", "卡片", "轮播", "缩略图", "图片", "视觉", "截图", "页面截图", "封面", "海报"],
       "stages": [
-        {"step": 1, "stage": "visual_direction", "execution": "serial", "candidate_skills": ["xhs-visual-director"], "agent_role": "Visual direction agent defines format, hierarchy, style, and acceptance checks."},
-        {"step": 2, "stage": "asset_generation", "execution": "parallel", "parallel_group": "asset_variants", "depends_on": ["visual_direction"], "candidate_skills": ["guizang-social-card-skill", "imagegen", "high-fidelity-page-screenshot"], "agent_role": "Asset agents generate independent visual variants when the deliverable allows it."},
-        {"step": 3, "stage": "handoff", "execution": "serial", "depends_on": ["asset_generation"], "candidate_skills": ["post-formatter"], "agent_role": "Handoff agent inventories files, captions, alt text, and manual publish notes."}
+        {"step": 1, "stage": "visual_direction", "execution": "serial", "candidate_skills": ["graphic-designer", "xhs-visual-director"], "candidate_conditions": {"xhs-visual-director": ["xhs", "xiaohongshu", "rednote", "小红书", "红书"]}, "agent_role": "Visual direction agent defines format, hierarchy, style, and acceptance checks."},
+        {"step": 2, "stage": "asset_generation", "execution": "serial", "depends_on": ["visual_direction"], "candidate_skills": ["high-fidelity-page-screenshot", "guizang-social-card-skill", "imagegen"], "candidate_conditions": {"high-fidelity-page-screenshot": ["full-page", "screenshot", "page screenshot", "screenshot page", "整页", "截图", "页面截图"], "guizang-social-card-skill": ["card", "carousel", "卡片", "轮播"], "imagegen": ["image", "generate image", "图片", "生成图"]}, "agent_role": "Asset agent selects one renderer that matches the requested deliverable."},
+        {"step": 3, "stage": "handoff", "execution": "serial", "depends_on": ["asset_generation"], "candidate_skills": [], "agent_role": "Router inventories files, captions, alt text, and manual publish notes."}
       ]
     },
     {
@@ -209,7 +226,10 @@
       "label": "Build a reusable content system",
       "domain": "systems",
       "mode": "deep",
-      "triggers": ["content system", "workflow", "calendar", "library", "notion", "operating docs", "内容系统", "工作流", "选题库", "日历", "知识库", "运营文档"],
+      "required_any": ["content system", "content workflow", "editorial workflow", "content calendar", "editorial calendar", "content library", "knowledge library", "notion", "operating docs", "内容系统", "内容工作流", "选题库", "内容日历", "知识库", "运营文档"],
+      "intent_any": ["build", "create", "design", "set up", "organize", "构建", "创建", "设计", "搭建", "整理"],
+      "exclude": ["app", "engine", "api", "function", "algorithm", "command-line", "软件", "应用", "引擎", "接口", "函数", "算法"],
+      "triggers": ["content system", "content workflow", "editorial workflow", "content calendar", "editorial calendar", "content library", "knowledge library", "notion", "operating docs", "内容系统", "内容工作流", "选题库", "内容日历", "知识库", "运营文档"],
       "stages": [
         {"step": 1, "stage": "strategy", "execution": "parallel", "parallel_group": "system_inputs", "candidate_skills": ["niche-research"], "agent_role": "Strategy agent defines audience, pillars, cadence, and operating assumptions."},
         {"step": 1, "stage": "measurement", "execution": "parallel", "parallel_group": "system_inputs", "candidate_skills": ["analytics-dashboard"], "agent_role": "Measurement agent reviews available performance data and experiment signals."},
